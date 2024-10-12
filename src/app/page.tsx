@@ -1,35 +1,49 @@
-import Link from "next/link";
+import Image from "next/image";
+import bg from "../../public/images/background.gif";
+import planet from "../../public/images/planet-water.png";
 
 export default function HomePage() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
-      <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16">
-        <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-[5rem]">
-          Create <span className="text-[hsl(280,100%,70%)]">T3</span> App
-        </h1>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-8">
-          <Link
-            className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 text-white hover:bg-white/20"
-            href="https://create.t3.gg/en/usage/first-steps"
-            target="_blank"
-          >
-            <h3 className="text-2xl font-bold">First Steps →</h3>
-            <div className="text-lg">
-              Just the basics - Everything you need to know to set up your
-              database and authentication.
+    <main className="text-white">
+      <div className="grid h-screen w-full grid-cols-1 gap-4 p-4 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3 lg:gap-12">
+        <Image
+          priority
+          sizes="100vw"
+          src={bg}
+          alt="background-image"
+          className="-z-50 h-screen w-full object-cover object-center"
+          fill
+        />
+        <div className="flex h-auto flex-col justify-between rounded-3xl border border-solid bg-transparent align-middle">
+          <div className="flex h-full w-full">
+            <div className="flex items-start justify-start">
+              <div className="h-36 w-36">
+                <Image src={planet} alt="planet" objectFit="cover" />
+              </div>
             </div>
-          </Link>
-          <Link
-            className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 text-white hover:bg-white/20"
-            href="https://create.t3.gg/en/introduction"
-            target="_blank"
-          >
-            <h3 className="text-2xl font-bold">Documentation →</h3>
-            <div className="text-lg">
-              Learn more about Create T3 App, the libraries it uses, and how to
-              deploy it.
+          </div>
+          <div className="mt-4">asd</div>
+        </div>
+
+        <div className="flex h-auto flex-col justify-between rounded-3xl border border-solid bg-transparent align-middle">
+          <div className="flex h-full w-full">
+            <div className="flex items-start justify-start">
+              <div className="h-36 w-36">
+                <Image src={planet} alt="planet" objectFit="cover" />
+              </div>
             </div>
-          </Link>
+          </div>
+          <div className="mt-4">asd</div>
+        </div>
+        <div className="flex h-auto flex-col justify-between rounded-3xl border border-solid bg-transparent align-middle">
+          <div className="flex h-full w-full">
+            <div className="flex items-start justify-start">
+              <div className="h-36 w-36">
+                <Image src={planet} alt="planet" objectFit="cover" />
+              </div>
+            </div>
+          </div>
+          <div className="mt-4">asd</div>
         </div>
       </div>
     </main>

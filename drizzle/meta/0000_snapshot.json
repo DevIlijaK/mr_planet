@@ -1,0 +1,140 @@
+{
+  "id": "8bbfb8d6-1aed-47bb-9b5b-3fd5d0fd4e85",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.mr_planet_blog": {
+      "name": "mr_planet_blog",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "search_title": {
+          "name": "search_title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "content": {
+          "name": "content",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "author": {
+          "name": "author",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "publication_date": {
+          "name": "publication_date",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "path_to_main_blog_picture": {
+          "name": "path_to_main_blog_picture",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "type_of_main_blog_picture": {
+          "name": "type_of_main_blog_picture",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "url": {
+          "name": "url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "title_index": {
+          "name": "title_index",
+          "columns": [
+            {
+              "expression": "search_title",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "author_index": {
+          "name": "author_index",
+          "columns": [
+            {
+              "expression": "author",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "mr_planet_blog_title_unique": {
+          "name": "mr_planet_blog_title_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "title"
+          ]
+        },
+        "mr_planet_blog_search_title_unique": {
+          "name": "mr_planet_blog_search_title_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "search_title"
+          ]
+        },
+        "mr_planet_blog_path_to_main_blog_picture_unique": {
+          "name": "mr_planet_blog_path_to_main_blog_picture_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "path_to_main_blog_picture"
+          ]
+        },
+        "mr_planet_blog_url_unique": {
+          "name": "mr_planet_blog_url_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "url"
+          ]
+        }
+      }
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

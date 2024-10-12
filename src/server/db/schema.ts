@@ -1,14 +1,7 @@
 // Example model schema from the Drizzle docs
 // https://orm.drizzle.team/docs/sql-schema-declaration
 
-import { sql } from "drizzle-orm";
-import {
-  index,
-  pgTableCreator,
-  serial,
-  timestamp,
-  varchar,
-} from "drizzle-orm/pg-core";
+import { pgTableCreator, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
 /**
  * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
@@ -18,19 +11,16 @@ import {
  */
 export const createTable = pgTableCreator((name) => `mr_planet_${name}`);
 
-export const posts = createTable(
-  "post",
-  {
-    id: serial("id").primaryKey(),
-    name: varchar("name", { length: 256 }),
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
-      () => new Date()
-    ),
-  },
-  (example) => ({
-    nameIndex: index("name_idx").on(example.name),
-  })
-);
+export const blog = createTable("blog", {
+  id: uuid("id").primaryKey(),
+  title: text("title").notNull().unique(),
+  blogBody: text("content").notNull(),
+  author: text("author").notNull(),
+  publicationDate: timestamp("publication_date").defaultNow(),
+  pathToMainBlogPicture: text("path_to_main_blog_picture").notNull().unique(),
+  typeOfMainBlogPicture: text("type_of_main_blog_picture").notNull(),
+  url: text("url").notNull().unique(),
+});
+
+export type InsertBlog = typeof blog.$inferInsert;
+export type SelectBlog = typeof blog.$inferSelect;
