@@ -34,16 +34,19 @@ export function getRandomPlanet(): StaticImageData {
   return test;
 }
 
-import { useState, useEffect } from "react";
-import { GameLoop } from "./game-loop";
+import { useState, useEffect, type FC } from "react";
+import Hero from "./hero";
+import { GameLoopProvider } from "./providers/game-loop-context";
+import { SpaceProvider } from "./providers/space-provider";
+import { MovementProvider } from "./providers/movement-provider";
 import { PhysicsContextProvider } from "./providers/physics-provider";
 import { PressedKeysProvider } from "./providers/pressed-keys-provider";
-import { MovementProvider } from "./providers/movement-provider";
+import { BottomRamp } from "./bottom-ramp";
 
-export const BlogGrid = () => {
+export const BlogGrid: FC = () => {
   const [screenSize, setScreenSize] = useState<number | null>(null);
   const size = useScreenSize();
-  let numberOfPlanets = 9; // Default to 9 for large screens
+  let numberOfPlanets = 9;
 
   useEffect(() => {
     setScreenSize(size);
@@ -69,19 +72,23 @@ export const BlogGrid = () => {
         className="-z-50 h-screen w-full object-cover object-center"
         fill
       />
-      <div className="grid h-[90vh] w-full grid-cols-1 gap-y-[2.5vh] overflow-auto px-[10vw] py-[5vh] sm:grid-cols-2 sm:gap-x-[10vw] sm:px-[5vw] lg:grid-cols-3 lg:gap-x-[7.5vw]">
-        {Array.from({ length: numberOfPlanets }).map((_, index) => (
-          <PlanetCart key={index} planet={getRandomPlanet()} />
-        ))}
-      </div>
-      <div className="h-[10vh] w-full bg-green-500"></div>
-      <PhysicsContextProvider>
-        <MovementProvider>
-          <PressedKeysProvider>
-            <GameLoop />
-          </PressedKeysProvider>
-        </MovementProvider>
-      </PhysicsContextProvider>
+      <SpaceProvider>
+        <div className="grid h-[90vh] w-full grid-cols-1 gap-y-[2.5vh] overflow-auto px-[10vw] py-[5vh] sm:grid-cols-2 sm:gap-x-[10vw] sm:px-[5vw] lg:grid-cols-3 lg:gap-x-[7.5vw]">
+          {Array.from({ length: numberOfPlanets }).map((_, index) => (
+            <PlanetCart key={index} planet={getRandomPlanet()} />
+          ))}
+        </div>
+        <BottomRamp />
+        <PhysicsContextProvider>
+          <MovementProvider>
+            <PressedKeysProvider>
+              <GameLoopProvider>
+                <Hero />
+              </GameLoopProvider>
+            </PressedKeysProvider>
+          </MovementProvider>
+        </PhysicsContextProvider>
+      </SpaceProvider>
     </div>
   );
 };

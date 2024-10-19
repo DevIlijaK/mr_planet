@@ -1,37 +1,31 @@
 "use client";
-import Image, { type StaticImageData } from "next/image";
-import { forwardRef } from "react";
+import Image from "next/image";
 
-import React from "react";
+import { useGameLoop } from "./providers/game-loop-context";
+import { useSpace } from "./providers/space-provider";
 
-type HeroProps = {
-  hero: StaticImageData;
-  left: number;
-  top: number;
-} & React.HTMLProps<HTMLDivElement>;
+const Hero = () => {
+  const { heroImage, heroTop, heroLeft } = useGameLoop();
+  const { heroRef } = useSpace();
 
-const Hero = forwardRef<HTMLDivElement, HeroProps>(
-  ({ hero, left, top, ...props }, ref) => {
-    return (
+  return (
+    heroRef && (
       <div
-        className="absolute"
-        ref={ref}
-        {...props}
-        style={{ left: left, top: top }}
+        className="absolute h-[77px] w-[50px]"
+        ref={heroRef}
+        style={{ left: heroLeft, top: heroTop }} // Ensure you're using heroLeft and heroTop
       >
         <Image
-          src={hero}
+          unoptimized
+          src={heroImage} // Use the heroImage from context
           width={50}
-          height={117}
+          height={77}
           alt="planet"
           className="object-cover"
         />
       </div>
-    );
-  },
-);
-
-// Set the display name for better debugging
-Hero.displayName = "Hero";
+    )
+  );
+};
 
 export default Hero;

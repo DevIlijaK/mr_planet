@@ -6,6 +6,8 @@ import React, {
   createContext,
   useContext,
   useCallback,
+  Dispatch,
+  SetStateAction,
 } from "react";
 
 interface PhysicsContextType {
@@ -13,7 +15,7 @@ interface PhysicsContextType {
   screenHeight: number;
   screenWidth: number;
   gravitationVelocity: number;
-  setGravitationVelocity: (value: number) => void;
+  setGravitationVelocity: Dispatch<SetStateAction<number>>;
 }
 
 export const PhysicsContext = createContext<PhysicsContextType | undefined>(
@@ -57,10 +59,6 @@ export const PhysicsContextProvider: React.FC<{
     };
   }, []);
 
-  const toggleGravitationVelocity = useCallback((value: number) => {
-    setGravitationVelocity(value);
-  }, []);
-
   return (
     <PhysicsContext.Provider
       value={{
@@ -68,7 +66,7 @@ export const PhysicsContextProvider: React.FC<{
         screenHeight,
         screenWidth,
         gravitationVelocity,
-        setGravitationVelocity: toggleGravitationVelocity,
+        setGravitationVelocity,
       }}
     >
       {children}

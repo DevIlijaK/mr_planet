@@ -1,3 +1,5 @@
+"use client";
+
 import { BlogGrid } from "~/components/blog-grid";
 
 export default function HomePage() {

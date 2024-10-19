@@ -1,5 +1,5 @@
 import Image, { type StaticImageData } from "next/image";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import meteor from "../../public/images/meteors/Meteor_01.png";
 import meteor2 from "../../public/images/meteors/Meteor_02.png";
 import meteor3 from "../../public/images/meteors/Meteor_03.png";
@@ -11,6 +11,7 @@ import meteor8 from "../../public/images/meteors/Meteor_08.png";
 import meteor9 from "../../public/images/meteors/Meteor_09.png";
 import meteor10 from "../../public/images/meteors/Meteor_10.png";
 import useScreenSize from "~/hooks/use-screen-size";
+import { useSpace } from "./providers/space-provider";
 
 const meteors: StaticImageData[] = [
   meteor,
@@ -37,21 +38,28 @@ interface PlanetCartProps {
 export const PlanetCart: React.FC<PlanetCartProps> = ({ planet }) => {
   const [screenSize, setScreenSize] = useState<number | null>(null);
   const size = useScreenSize();
-  let numberOfAsteroids = 8;
+  const rampRef = useRef<HTMLDivElement>(null);
+  const { rampRefs } = useSpace();
+
+  useEffect(() => {
+    if (rampRef.current) {
+      rampRefs.current?.push(rampRef.current);
+    }
+  }, [rampRef, rampRefs]);
 
   useEffect(() => {
     setScreenSize(size);
   }, [size]);
 
-  if (screenSize === null) {
-    return null;
-  }
+  const numberOfAsteroids =
+    screenSize !== null
+      ? screenSize < 640
+        ? 12
+        : screenSize < 1024
+          ? 9
+          : 8
+      : 8;
 
-  if (screenSize < 640) {
-    numberOfAsteroids = 12;
-  } else if (screenSize < 1024) {
-    numberOfAsteroids = 9;
-  }
   return (
     <div className="flex h-[25vh] w-[80vw] flex-col justify-between rounded-3xl border border-solid bg-transparent align-middle sm:w-[40vw] lg:w-[25vw]">
       <div className="flex h-full w-full p-2">
@@ -59,21 +67,21 @@ export const PlanetCart: React.FC<PlanetCartProps> = ({ planet }) => {
           <div className="h-[10vh] w-[10vh] flex-shrink-0">
             <Image src={planet} alt="planet" className="object-cover" />
           </div>
-          <div>
-            <h1>Testiranje kaskjdalsd</h1>
-            <p>
+          <div className="overflow-hidden">
+            <h1 className="text-sm font-medium">Testiranje kaskjdalsd</h1>
+            <p className="text-xs font-light">
               Testialksdjalksdj klasjakl acjalkj alkscja alksja aslkcja ls
               jaskjdalkj asclja a alk jajs j sa jkas kj akj kaj
             </p>
           </div>
         </div>
       </div>
-      <div className="flex h-[5vh] justify-between">
+      <div ref={rampRef} className="flex h-[5vh] justify-between">
         {Array.from({ length: numberOfAsteroids }).map((_, index) => (
           <div key={index} className="h-[5vh] w-[5vh]">
             <Image
               src={getRandomMeteor()}
-              alt="planet"
+              alt={`asteroid-${index}`}
               className="object-cover"
             />
           </div>
