@@ -11,7 +11,7 @@ import {
   Strikethrough,
   Underline,
 } from "lucide-react";
-import React, { useCallback } from "react";
+import React from "react";
 import { Menubar } from "~/components/ui/menubar";
 import { type Editor } from "@tiptap/react";
 import { cn } from "~/lib/utils";
@@ -34,23 +34,6 @@ const TextEditor: React.FC<TextEditorProps> = ({
   if (!editor) {
     return null;
   }
-
-  const setLink = useCallback(() => {
-    const previousUrl = editor.getAttributes("link").href as string;
-    const url = window.prompt("URL", previousUrl);
-
-    if (url === null) {
-      return;
-    }
-
-    if (url === "") {
-      editor.chain().focus().extendMarkRange("link").unsetLink().run();
-
-      return;
-    }
-
-    editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
-  }, [editor]);
 
   return (
     <Menubar>

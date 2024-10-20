@@ -5,6 +5,7 @@ import React, {
   useEffect,
   useCallback,
 } from "react";
+import { useMovementContext } from "./movement-provider";
 
 interface PressedKeysContextType {
   pressedKeys: Set<string>;
@@ -30,13 +31,20 @@ export const PressedKeysProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
+  const { setIsDynamicPictureActive, isJumping } = useMovementContext();
 
-  const handleKeyUp = useCallback((event: KeyboardEvent) => {
-    setPressedKeys((prev) => {
-      prev.delete(event.key.toLowerCase());
-      return prev;
-    });
-  }, []);
+  const handleKeyUp = useCallback(
+    (event: KeyboardEvent) => {
+      setPressedKeys((prev) => {
+        prev.delete(event.key.toLowerCase());
+        return prev;
+      });
+      if (pressedKeys.size === 0 && !isJumping) {
+        setIsDynamicPictureActive(false);
+      }
+    },
+    [isJumping, pressedKeys.size, setIsDynamicPictureActive],
+  );
 
   const handleKeyDown = useCallback((event: KeyboardEvent) => {
     const key = event.key.toLowerCase();

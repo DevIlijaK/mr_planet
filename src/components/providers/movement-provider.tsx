@@ -5,6 +5,8 @@ interface MovementContextType {
   isJumping: boolean;
   maxHeight: number;
   jumpingAnimation: Set<string>;
+  isDynamicPictureActive: boolean;
+  setIsDynamicPictureActive: React.Dispatch<React.SetStateAction<boolean>>;
   setIsMoving: (value: boolean) => void;
   setIsJumping: (value: boolean) => void;
   setMaxHeight: (value: number) => void;
@@ -35,6 +37,8 @@ export const MovementProvider: React.FC<{ children: React.ReactNode }> = ({
   );
   const [isJumping, setIsJumping] = useState<boolean>(false);
   const [maxHeight, setMaxHeight] = useState<number>(0);
+  const [isDynamicPictureActive, setIsDynamicPictureActive] =
+    useState<boolean>(false);
 
   const toggleIsMoving = useCallback((value: boolean) => {
     setIsMoving(value);
@@ -66,6 +70,8 @@ export const MovementProvider: React.FC<{ children: React.ReactNode }> = ({
         isJumping,
         maxHeight,
         jumpingAnimation,
+        isDynamicPictureActive,
+        setIsDynamicPictureActive,
         setIsMoving: toggleIsMoving,
         setIsJumping: toggleIsJumping,
         setMaxHeight: toggleMaxHeight,

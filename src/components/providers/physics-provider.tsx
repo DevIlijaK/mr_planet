@@ -5,17 +5,22 @@ import React, {
   useEffect,
   createContext,
   useContext,
-  useCallback,
-  Dispatch,
-  SetStateAction,
+  type Dispatch,
+  type SetStateAction,
+  useRef,
 } from "react";
+import useScreenSize from "~/hooks/use-screen-size";
 
 interface PhysicsContextType {
   step: number;
   screenHeight: number;
   screenWidth: number;
+  gravity: number;
+  jumpVelocity: number;
   gravitationVelocity: number;
   setGravitationVelocity: Dispatch<SetStateAction<number>>;
+  initialY: React.MutableRefObject<number>;
+  initialX: React.MutableRefObject<number>;
 }
 
 export const PhysicsContext = createContext<PhysicsContextType | undefined>(
@@ -35,29 +40,27 @@ export const usePhysicsContext = () => {
 export const PhysicsContextProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
-  const [screenHeight, setScreenHeight] = useState(window.innerHeight);
-  const [screenWidth, setScreenWidth] = useState(window.innerWidth);
-  const [step, setStep] = useState(0);
+  const screenHeight = window.innerHeight;
+  const screenWidth = window.innerWidth;
+  const [step, setStep] = useState(6);
   const [gravitationVelocity, setGravitationVelocity] = useState<number>(0);
-
-  const calculateStep = useCallback(() => {
-    const calculatedStep = ((screenWidth + screenHeight) / 2) * 0.003;
-    setStep(calculatedStep);
-  }, []);
+  const [gravity, setGravity] = useState<number>(0.002);
+  const [jumpVelocity, setJumpVelocity] = useState<number>(5);
+  const size = useScreenSize();
+  const initialY = useRef<number>(0);
+  const initialX = useRef<number>(0);
 
   useEffect(() => {
-    calculateStep();
-
-    const handleResize = () => {
-      calculateStep();
-    };
-
-    window.addEventListener("resize", handleResize);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
+    if (size < 640) {
+      setStep(5);
+      setGravity(0.005);
+      setJumpVelocity(5.5);
+    } else if (size < 1024) {
+      setStep(5);
+      setGravity(0.003);
+      setJumpVelocity(5.5);
+    }
+  }, [size]);
 
   return (
     <PhysicsContext.Provider
@@ -65,8 +68,12 @@ export const PhysicsContextProvider: React.FC<{
         step,
         screenHeight,
         screenWidth,
+        jumpVelocity,
+        gravity,
         gravitationVelocity,
         setGravitationVelocity,
+        initialX,
+        initialY,
       }}
     >
       {children}

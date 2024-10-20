@@ -42,6 +42,7 @@ import { MovementProvider } from "./providers/movement-provider";
 import { PhysicsContextProvider } from "./providers/physics-provider";
 import { PressedKeysProvider } from "./providers/pressed-keys-provider";
 import { BottomRamp } from "./bottom-ramp";
+import { HeroSizeProvider } from "./providers/hero-size-provider";
 
 export const BlogGrid: FC = () => {
   const [screenSize, setScreenSize] = useState<number | null>(null);
@@ -82,9 +83,11 @@ export const BlogGrid: FC = () => {
         <PhysicsContextProvider>
           <MovementProvider>
             <PressedKeysProvider>
-              <GameLoopProvider>
-                <Hero />
-              </GameLoopProvider>
+              <HeroSizeProvider>
+                <GameLoopProvider>
+                  <Hero />
+                </GameLoopProvider>
+              </HeroSizeProvider>
             </PressedKeysProvider>
           </MovementProvider>
         </PhysicsContextProvider>

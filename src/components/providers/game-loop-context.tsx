@@ -6,6 +6,8 @@ import React, {
   useRef,
   useCallback,
   useEffect,
+  type Dispatch,
+  type SetStateAction,
 } from "react";
 import { useMovementContext } from "./movement-provider";
 import { usePhysicsContext } from "./physics-provider";
@@ -13,40 +15,20 @@ import { usePressedKeysContext } from "./pressed-keys-provider";
 import hero from "../../../public/images/hero/mr-planet.png";
 import runRight from "../../../public/images/hero/run-right.gif";
 import runLeft from "../../../public/images/hero/run-left.gif";
-import jumpRight from "../../../public/images/hero/jump-left.png";
-import jumpLeft from "../../../public/images/hero/jump-right.png";
+import jumpRight from "../../../public/images/hero/jump-right.png";
+import jumpLeft from "../../../public/images/hero/jump-left.png";
 import { useSpace } from "./space-provider";
+import { useHeroSize } from "./hero-size-provider";
 
 // Define the context and its shape
 interface GameLoopContextType {
   heroImage: StaticImageData;
-  setHeroImage: React.Dispatch<React.SetStateAction<StaticImageData>>;
   heroLeft: number;
-  setHeroLeft: React.Dispatch<React.SetStateAction<number>>;
   heroTop: number;
-  setHeroTop: React.Dispatch<React.SetStateAction<number>>;
   heroWidth: number;
-  setHeroWidth: React.Dispatch<React.SetStateAction<number>>;
   heroHeight: number;
-  setHeroHeight: React.Dispatch<React.SetStateAction<number>>;
-  isDynamicPictureActive: boolean;
-  setIsDynamicPictureActive: React.Dispatch<React.SetStateAction<boolean>>;
-  initialVelocityX: number;
-  setInitialVelocityX: React.Dispatch<React.SetStateAction<number>>;
-  initialVelocityY: number;
-  setInitialVelocityY: React.Dispatch<React.SetStateAction<number>>;
-  time: number;
-  setTime: React.Dispatch<React.SetStateAction<number>>;
-  initialY: number;
-  setInitialY: React.Dispatch<React.SetStateAction<number>>;
-  initialX: number;
-  setInitialX: React.Dispatch<React.SetStateAction<number>>;
-  jumpVelocity: number;
-  setJumpVelocity: React.Dispatch<React.SetStateAction<number>>;
-  standingElement: any; // Replace 'any' with the appropriate type if known
-  setStandingElement: React.Dispatch<React.SetStateAction<any>>;
-  gravity: number;
-  animationFrameId: React.RefObject<number | null>;
+  setHeroTop: Dispatch<SetStateAction<number>>;
+  setHeroLeft: Dispatch<SetStateAction<number>>;
 }
 
 // Create the context
@@ -62,9 +44,15 @@ export const GameLoopProvider: React.FC<{ children: React.ReactNode }> = ({
     step,
     screenHeight,
     screenWidth,
+    gravity,
     gravitationVelocity,
+    jumpVelocity,
     setGravitationVelocity,
+    initialX,
+    initialY,
   } = usePhysicsContext();
+
+  const { heroWidth, heroHeight } = useHeroSize();
 
   const { pressedKeys } = usePressedKeysContext();
   const {
@@ -76,27 +64,20 @@ export const GameLoopProvider: React.FC<{ children: React.ReactNode }> = ({
     setMaxHeight,
     jumpingAnimation,
     addJumpingAnimation,
+    isDynamicPictureActive,
+    setIsDynamicPictureActive,
   } = useMovementContext();
   const [heroImage, setHeroImage] = useState<StaticImageData>(hero);
   const [heroLeft, setHeroLeft] = useState<number>(50);
   const [heroTop, setHeroTop] = useState<number>(500);
-  const [heroWidth, setHeroWidth] = useState<number>(50);
-  const [heroHeight, setHeroHeight] = useState<number>(77);
-  const [isDynamicPictureActive, setIsDynamicPictureActive] =
-    useState<boolean>(false);
   const [initialVelocityX, setInitialVelocityX] = useState<number>(0);
   const [initialVelocityY, setInitialVelocityY] = useState<number>(0);
   const [time, setTime] = useState<number>(0);
-  const [initialY, setInitialY] = useState<number>(0);
-  const [initialX, setInitialX] = useState<number>(0);
-  const [jumpVelocity, setJumpVelocity] = useState<number>(5);
-  const [standingElement, setStandingElement] = useState<undefined>(undefined);
   const [isTouchingSides, setIsTouchingSides] = useState<boolean>(false);
-  const { rampRefs } = useSpace();
+  const { rampRefs, standingElement } = useSpace();
 
   const animationFrameId = useRef<number | null>(null);
 
-  const gravity = 0.001;
   useEffect(() => {
     if (heroLeft <= 0) {
       setHeroLeft(0);
@@ -122,15 +103,15 @@ export const GameLoopProvider: React.FC<{ children: React.ReactNode }> = ({
         rect.left + rect.width >= heroLeft
       ) {
         // console.log("Ulazi ovde 11");
-        console.log("Platforma: ", rect);
-        console.log("Hero visina: ", heroHeight);
-        console.log("Hero top: ", heroTop);
-        console.log("Platforma top - hero visina: ", rect.top - heroHeight);
+        // console.log("Platforma: ", rect);
+        // console.log("Hero visina: ", heroHeight);
+        // console.log("Hero top: ", heroTop);
+        // console.log("Platforma top - hero visina: ", rect.top - heroHeight);
         setHeroTop(rect.top - heroHeight);
         setMaxHeight(rect.top);
         setTime(1);
         setGravitationVelocity(0);
-        //   setStandingElement({ dimension: rect, platform: platforms[i] })
+        standingElement.current = { dimension: rect, platform: ramp };
 
         setHeroImage(hero);
         setIsDynamicPictureActive(false);
@@ -153,65 +134,70 @@ export const GameLoopProvider: React.FC<{ children: React.ReactNode }> = ({
     maxHeight,
     rampRefs,
     setGravitationVelocity,
+    setIsDynamicPictureActive,
     setIsJumping,
     setMaxHeight,
+    standingElement,
   ]);
 
   const throwAnimation = useCallback(() => {
     // console.log("----- throwAnimation START -----");
     // console.log("Velocity: ", gravitationVelocity);
-    const gravitationVelocityLocal =
-      gravitationVelocity + 0.5 * gravity * Math.pow(time, 2);
-    // console.log("gravitationVelocityLocal:", gravitationVelocityLocal);
+    if (gravity) {
+      const gravitationVelocityLocal =
+        gravitationVelocity + 0.5 * gravity * Math.pow(time, 2);
+      // console.log("gravitationVelocityLocal:", gravitationVelocityLocal);
 
-    const heroTopLocal =
-      initialY - initialVelocityY * time + gravitationVelocityLocal;
-    // console.log("heroTopLocal (calculated):", heroTopLocal);
+      const heroTopLocal =
+        initialY.current - initialVelocityY * time + gravitationVelocityLocal;
+      // console.log("heroTopLocal (calculated):", heroTopLocal);
 
-    if (!isTouchingSides) {
-      // console.log("Is touching sides: ", isTouchingSides);
-      setHeroLeft(Math.round(initialX - initialVelocityX * time));
-      //   console.log(
-      //     "Hero moving left, new heroLeft:",
-      //     Math.round(heroTop - initialVelocityX * time),
-      //   );
+      if (!isTouchingSides) {
+        // console.log("Is touching sides: ", isTouchingSides);
+        setHeroLeft(Math.round(initialX.current - initialVelocityX * time));
+        //   console.log(
+        //     "Hero moving left, new heroLeft:",
+        //     Math.round(heroTop - initialVelocityX * time),
+        //   );
+      }
+
+      const timeLocal = time + 1.5;
+      // console.log("timeLocal:", timeLocal);
+
+      if (heroTopLocal + heroHeight <= maxHeight) {
+        setMaxHeight(heroTopLocal + heroHeight);
+        //   console.log("New maxHeight set:", heroTopLocal + heroHeight);
+      }
+
+      // Logs for important state and variables
+      // console.log("Local heroTop:", heroTopLocal);
+      // console.log("Current heroTop state:", heroTop);
+      // console.log("Initial Y velocity:", initialVelocityY);
+      // console.log("Time:", time);
+      // console.log("Gravitation velocity local:", gravitationVelocityLocal);
+      // console.log("");
+
+      // Update states
+      setHeroLeft((initialX) => {
+        const newHeroLeft = initialX - initialVelocityX * timeLocal;
+        //   console.log("New heroLeft (calculated):", newHeroLeft);
+        return newHeroLeft;
+      });
+
+      setGravitationVelocity(gravitationVelocityLocal);
+      // console.log("gravitationVelocity unchanged, set to:", gravitationVelocity);
+
+      setHeroTop(heroTopLocal);
+      // console.log("heroTop set to heroTopLocal:", heroTopLocal);
+
+      setTime(timeLocal);
+      // console.log("time set to timeLocal:", timeLocal);
+
+      // console.log("----- throwAnimation END -----");
     }
-
-    const timeLocal = time + 1.5;
-    // console.log("timeLocal:", timeLocal);
-
-    if (heroTopLocal + heroHeight <= maxHeight) {
-      setMaxHeight(heroTopLocal + heroHeight);
-      //   console.log("New maxHeight set:", heroTopLocal + heroHeight);
-    }
-
-    // Logs for important state and variables
-    // console.log("Local heroTop:", heroTopLocal);
-    // console.log("Current heroTop state:", heroTop);
-    // console.log("Initial Y velocity:", initialVelocityY);
-    // console.log("Time:", time);
-    // console.log("Gravitation velocity local:", gravitationVelocityLocal);
-    // console.log("");
-
-    // Update states
-    setHeroLeft((initialX) => {
-      const newHeroLeft = initialX - initialVelocityX * timeLocal;
-      //   console.log("New heroLeft (calculated):", newHeroLeft);
-      return newHeroLeft;
-    });
-
-    setGravitationVelocity(gravitationVelocityLocal);
-    // console.log("gravitationVelocity unchanged, set to:", gravitationVelocity);
-
-    setHeroTop(heroTopLocal);
-    // console.log("heroTop set to heroTopLocal:", heroTopLocal);
-
-    setTime(timeLocal);
-    // console.log("time set to timeLocal:", timeLocal);
-
-    // console.log("----- throwAnimation END -----");
   }, [
     gravitationVelocity,
+    gravity,
     heroHeight,
     initialVelocityX,
     initialVelocityY,
@@ -244,8 +230,10 @@ export const GameLoopProvider: React.FC<{ children: React.ReactNode }> = ({
       //   console.log("Math.cos(angleInRadians):", Math.cos(angleInRadians));
       //   console.log("Math.sin(angleInRadians):", Math.sin(angleInRadians));
 
-      setInitialX(heroLeft);
-      setInitialY(heroTop);
+      // console.log("iNITIAL X JE: ", initialX);
+
+      initialX.current = heroLeft;
+      initialY.current = heroTop;
 
       setInitialVelocityX(jumpVelocity * Math.cos(angleInRadians));
       //   console.log(
@@ -265,7 +253,7 @@ export const GameLoopProvider: React.FC<{ children: React.ReactNode }> = ({
       addJumpingAnimation(key);
       //   console.log("addJumpingAnimation called with key:", key);
 
-      setStandingElement(undefined);
+      standingElement.current = null;
       //   console.log("standingElement set to undefined");
 
       setIsJumping(true);
@@ -276,11 +264,77 @@ export const GameLoopProvider: React.FC<{ children: React.ReactNode }> = ({
       addJumpingAnimation,
       heroLeft,
       heroTop,
+      initialX,
+      initialY,
       jumpVelocity,
       setGravitationVelocity,
       setIsJumping,
+      standingElement,
     ],
   );
+
+  const checkStandingElements = useCallback(() => {
+    // console.log("Standing element je: ", standingElement);
+    if (standingElement.current) {
+      // console.log("top je: ", standingElement.current.dimension.left <= );
+      // console.log('Hero top je: ', heroTop)
+      // console.log('Hero height je: ', heroHeight)
+      // console.log(
+      //   "standingElement.dimension.left <= heroLeft + heroWidth",
+      //   standingElement.current.dimension.left <= heroLeft + heroWidth,
+      // );
+      // console.log(
+      //   "standingElement.dimension.left + standingElement.dimension.width >= heroLeft",
+      //   standingElement.current.dimension.left +
+      //     standingElement.current.dimension.width >=
+      //     heroLeft,
+      // );
+      if (
+        standingElement.current.dimension.left <= heroLeft + heroWidth &&
+        standingElement.current.dimension.left +
+          standingElement.current.dimension.width >=
+          heroLeft
+      ) {
+        // if (pressedKeys.has("k")) {
+        //   enterBlog(standingElement);
+        //   isMoving = false;
+        // }
+        // if (standingElement.current?.platform?.id !== "footer") {
+        //   heroDirectionsContainer.style.visibility = "visible";
+        //   heroDirectionsContainer.onclick = teleportInsideBlog;
+        //   heroDirectionsContainer.innerText = "TP u BLOG";
+        // }
+        // isFalling = false;
+      } else {
+        if (pressedKeys.has("d")) {
+          console.log("Ulazi ovde", isJumping);
+          if (!isJumping) {
+            console.log("Ulazi ovde");
+            obliqueThrowConfig(250, "d");
+            setHeroImage(jumpRight);
+          }
+          // gravityConfig(3.14159);
+        } else if (pressedKeys.has("a")) {
+          if (!isJumping) {
+            obliqueThrowConfig(280, "a");
+            setHeroImage(jumpLeft);
+          }
+        }
+        throwAnimation();
+        // heroDirectionsContainer.style.visibility = "hidden";
+      }
+    } else {
+      // heroDirectionsContainer.style.visibility = "hidden";
+    }
+  }, [
+    heroLeft,
+    heroWidth,
+    isJumping,
+    obliqueThrowConfig,
+    pressedKeys,
+    standingElement,
+    throwAnimation,
+  ]);
 
   const moveHero = useCallback(() => {
     // console.log("Is active: ", !isDynamicPictureActive);
@@ -309,12 +363,17 @@ export const GameLoopProvider: React.FC<{ children: React.ReactNode }> = ({
       throwAnimation();
     } else {
       // console.log("Uslo ovde 5555555555555https://forms.gle/GyCf5XAZpjZMkhHw7");
-      if ((!isJumping && pressedKeys.has("w")) || jumpingAnimation.has("w")) {
+      if (
+        (!isJumping && pressedKeys.has("w")) ||
+        jumpingAnimation.has("w") ||
+        jumpingAnimation.has("a") ||
+        jumpingAnimation.has("d")
+      ) {
         if (!isJumping) {
           obliqueThrowConfig(90, "w");
           setHeroImage(hero);
 
-          console.log("Uslo ovde");
+          // console.log("Uslo ovde");
         }
         throwAnimation();
       }
@@ -346,6 +405,7 @@ export const GameLoopProvider: React.FC<{ children: React.ReactNode }> = ({
     jumpingAnimation,
     obliqueThrowConfig,
     pressedKeys,
+    setIsDynamicPictureActive,
     step,
     throwAnimation,
   ]);
@@ -374,39 +434,19 @@ export const GameLoopProvider: React.FC<{ children: React.ReactNode }> = ({
   //   }, [isJumping, throwAnimation]);
   useEffect(() => {
     rampCollisionDetection();
-  }, [heroTop, heroLeft, rampCollisionDetection]);
+    checkStandingElements();
+  }, [heroTop, heroLeft, rampCollisionDetection, checkStandingElements]);
 
   return (
     <GameLoopContext.Provider
       value={{
         heroImage,
-        setHeroImage,
         heroLeft,
-        setHeroLeft,
         heroTop,
-        setHeroTop,
         heroWidth,
-        setHeroWidth,
         heroHeight,
-        setHeroHeight,
-        isDynamicPictureActive,
-        setIsDynamicPictureActive,
-        initialVelocityX,
-        setInitialVelocityX,
-        initialVelocityY,
-        setInitialVelocityY,
-        time,
-        setTime,
-        initialY,
-        setInitialY,
-        initialX,
-        setInitialX,
-        jumpVelocity,
-        setJumpVelocity,
-        standingElement,
-        setStandingElement,
-        gravity,
-        animationFrameId,
+        setHeroTop,
+        setHeroLeft,
       }}
     >
       {children}
