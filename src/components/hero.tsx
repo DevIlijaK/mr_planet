@@ -21,7 +21,7 @@ const Hero = () => {
   const { initialX, initialY } = usePhysicsContext();
   const [animationFinished, setAnimationFinished] = useState<boolean>(false);
   const { heroRef } = useSpace();
-  const topValue = `calc(90vh - ${heroHeight}px)`;
+  const topValue = `calc(90dvh - ${heroHeight}px)`;
 
   const [scope, animate] = useAnimate();
 
@@ -42,10 +42,10 @@ const Hero = () => {
     );
 
     // Move to the left (start of the screen)
-    await animate(scope.current, { x: "0vw" }, { duration: 3 });
+    await animate(scope.current, { x: "0dvw" }, { duration: 3 });
 
     // Move to the right (end of the screen)
-    await animate(scope.current, { x: "100vw" }, { duration: 3 });
+    await animate(scope.current, { x: "100dvw" }, { duration: 3 });
 
     await animate(
       scope.current,

@@ -61,10 +61,10 @@ export const PlanetCart: React.FC<PlanetCartProps> = ({ planet }) => {
       : 8;
 
   return (
-    <div className="flex h-[25vh] w-[80vw] flex-col justify-between rounded-3xl border border-solid bg-transparent align-middle sm:w-[40vw] lg:w-[25vw]">
+    <div className="flex h-[25dvh] w-[80dvw] flex-col justify-between rounded-3xl border border-solid bg-transparent align-middle sm:w-[40dvw] lg:w-[25dvw]">
       <div className="flex h-full w-full p-2">
         <div className="flex items-start justify-start">
-          <div className="h-[10vh] w-[10vh] flex-shrink-0">
+          <div className="h-[10dvh] w-[10dvh] flex-shrink-0">
             <Image src={planet} alt="planet" className="object-cover" />
           </div>
           <div className="overflow-hidden">
@@ -76,9 +76,9 @@ export const PlanetCart: React.FC<PlanetCartProps> = ({ planet }) => {
           </div>
         </div>
       </div>
-      <div ref={rampRef} className="flex h-[5vh] justify-between">
+      <div ref={rampRef} className="flex h-[5dvh] justify-between">
         {Array.from({ length: numberOfAsteroids }).map((_, index) => (
-          <div key={index} className="h-[5vh] w-[5vh]">
+          <div key={index} className="h-[5dvh] w-[5dvh]">
             <Image
               src={getRandomMeteor()}
               alt={`asteroid-${index}`}

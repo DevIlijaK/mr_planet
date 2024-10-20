@@ -67,14 +67,14 @@ export const BlogGrid: FC = () => {
     <div className="relative flex h-screen w-full flex-col justify-between overflow-hidden align-middle">
       <Image
         priority
-        sizes="100vw"
+        sizes="100dvw"
         src={bg}
         alt="background-image"
         className="-z-50 h-screen w-full object-cover object-center"
         fill
       />
       <SpaceProvider>
-        <div className="grid h-[90vh] w-full grid-cols-1 gap-y-[2.5vh] overflow-auto px-[10vw] py-[5vh] sm:grid-cols-2 sm:gap-x-[10vw] sm:px-[5vw] lg:grid-cols-3 lg:gap-x-[7.5vw]">
+        <div className="grid h-[90dvh] w-full grid-cols-1 gap-y-[2.5dvh] overflow-auto px-[10dvw] py-[5dvh] sm:grid-cols-2 sm:gap-x-[10dvw] sm:px-[5dvw] lg:grid-cols-3 lg:gap-x-[7.5dvw]">
           {Array.from({ length: numberOfPlanets }).map((_, index) => (
             <PlanetCart key={index} planet={getRandomPlanet()} />
           ))}
