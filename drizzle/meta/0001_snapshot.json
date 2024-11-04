@@ -1,0 +1,46 @@
+{
+  "id": "a749fd08-14b9-47b2-928b-4c9fd41ecb34",
+  "prevId": "8bbfb8d6-1aed-47bb-9b5b-3fd5d0fd4e85",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.mr_planet_blog": {
+      "name": "mr_planet_blog",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "content": {
+          "name": "content",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "publication_date": {
+          "name": "publication_date",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

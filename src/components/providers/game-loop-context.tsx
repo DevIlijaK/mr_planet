@@ -25,8 +25,6 @@ interface GameLoopContextType {
   heroImage: StaticImageData;
   heroLeft: number;
   heroTop: number;
-  heroWidth: number;
-  heroHeight: number;
   setHeroTop: Dispatch<SetStateAction<number>>;
   setHeroLeft: Dispatch<SetStateAction<number>>;
 }
@@ -443,8 +441,6 @@ export const GameLoopProvider: React.FC<{ children: React.ReactNode }> = ({
         heroImage,
         heroLeft,
         heroTop,
-        heroWidth,
-        heroHeight,
         setHeroTop,
         setHeroLeft,
       }}

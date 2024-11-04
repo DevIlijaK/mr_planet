@@ -1,11 +1,5 @@
 import { type Editor } from "@tiptap/react";
-import {
-  AlignCenter,
-  ChevronDown,
-  AlignJustify,
-  AlignLeft,
-  AlignRight,
-} from "lucide-react";
+import { AlignCenter, AlignJustify, AlignLeft, AlignRight } from "lucide-react";
 import { type FC } from "react";
 import { cn } from "~/lib/utils";
 import {
@@ -22,21 +16,13 @@ interface AlignMenuProps {
 export const AlignMenu: FC<AlignMenuProps> = ({ editor }) => {
   return (
     <MenubarMenu>
-      <MenubarTrigger
-        className={cn(
-          "flex cursor-pointer",
-          editor.isActive({ textAlign: "center" }) ||
-            editor.isActive({ textAlign: "justify" }) ||
-            editor.isActive({ textAlign: "left" }) ||
-            editor.isActive({ textAlign: "right" })
-            ? "bg-gray-100"
-            : null,
-        )}
-      >
-        <AlignCenter />
-        <ChevronDown size={16} />
+      <MenubarTrigger className={cn("flex cursor-pointer p-0")}>
+        <AlignCenter size={16} />
       </MenubarTrigger>
-      <MenubarContent className="flex justify-between" align="center">
+      <MenubarContent
+        className="flex min-w-[10rem] justify-between"
+        align="center"
+      >
         <MenubarItem
           className={cn(
             "cursor-pointer",
@@ -50,7 +36,7 @@ export const AlignMenu: FC<AlignMenuProps> = ({ editor }) => {
             }
           }}
         >
-          <AlignCenter />
+          <AlignCenter size={16} />
         </MenubarItem>
         <MenubarItem
           className={cn(
@@ -65,7 +51,7 @@ export const AlignMenu: FC<AlignMenuProps> = ({ editor }) => {
             }
           }}
         >
-          <AlignJustify />
+          <AlignJustify size={16} />
         </MenubarItem>
         <MenubarItem
           className={cn(
@@ -80,7 +66,7 @@ export const AlignMenu: FC<AlignMenuProps> = ({ editor }) => {
             }
           }}
         >
-          <AlignLeft />
+          <AlignLeft size={16} />
         </MenubarItem>
         <MenubarItem
           className={cn(
@@ -95,7 +81,7 @@ export const AlignMenu: FC<AlignMenuProps> = ({ editor }) => {
             }
           }}
         >
-          <AlignRight />
+          <AlignRight size={16} />
         </MenubarItem>
       </MenubarContent>
     </MenubarMenu>

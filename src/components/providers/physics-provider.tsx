@@ -54,7 +54,7 @@ export const PhysicsContextProvider: React.FC<{
     if (size < 640) {
       setStep(5);
       setGravity(0.005);
-      setJumpVelocity(5.5);
+      setJumpVelocity(6.5);
     } else if (size < 1024) {
       setStep(5);
       setGravity(0.003);

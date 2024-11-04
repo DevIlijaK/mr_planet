@@ -24,14 +24,18 @@ export const HeroSizeProvider = ({ children }: { children: ReactNode }) => {
   const size = useScreenSize();
 
   useEffect(() => {
+    const baseWidth = 75;
+    const baseHeight = 115.5;
+
+    let scaleFactor = 1;
     if (size < 640) {
-      //   150, 231;
-      setHeroWidth(37.5);
-      setHeroHeight(57.75);
+      scaleFactor = 0.4;
     } else if (size < 1024) {
-      setHeroWidth(37.5);
-      setHeroHeight(57.75);
+      scaleFactor = 0.75;
     }
+
+    setHeroWidth(baseWidth * scaleFactor);
+    setHeroHeight(baseHeight * scaleFactor);
   }, [size]);
 
   return (

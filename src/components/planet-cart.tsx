@@ -12,6 +12,7 @@ import meteor9 from "../../public/images/meteors/Meteor_09.png";
 import meteor10 from "../../public/images/meteors/Meteor_10.png";
 import useScreenSize from "~/hooks/use-screen-size";
 import { useSpace } from "./providers/space-provider";
+import { cn } from "~/lib/utils";
 
 const meteors: StaticImageData[] = [
   meteor,
@@ -33,9 +34,10 @@ export function getRandomMeteor(): StaticImageData {
 
 interface PlanetCartProps {
   planet: StaticImageData;
+  content: string;
 }
 
-export const PlanetCart: React.FC<PlanetCartProps> = ({ planet }) => {
+export const PlanetCart: React.FC<PlanetCartProps> = ({ planet, content }) => {
   const [screenSize, setScreenSize] = useState<number | null>(null);
   const size = useScreenSize();
   const rampRef = useRef<HTMLDivElement>(null);
@@ -61,24 +63,29 @@ export const PlanetCart: React.FC<PlanetCartProps> = ({ planet }) => {
       : 8;
 
   return (
-    <div className="flex h-[25dvh] w-[80dvw] flex-col justify-between rounded-3xl border border-solid bg-transparent align-middle sm:w-[40dvw] lg:w-[25dvw]">
-      <div className="flex h-full w-full p-2">
+    <div className="flex h-[25dvh] w-[80dvw] flex-col justify-between rounded-3xl bg-transparent align-middle sm:w-[40dvw] lg:w-[25dvw]">
+      <div className="flex h-full w-full">
         <div className="flex items-start justify-start">
           <div className="h-[10dvh] w-[10dvh] flex-shrink-0">
             <Image src={planet} alt="planet" className="object-cover" />
           </div>
-          <div className="overflow-hidden">
-            <h1 className="text-sm font-medium">Testiranje kaskjdalsd</h1>
+          <div className="h-[20dvh] overflow-hidden">
+            <h1 className="m-0 text-sm font-medium">Testiranje kaskjdalsd</h1>
             <p className="text-xs font-light">
-              Testialksdjalksdj klasjakl acjalkj alkscja alksja aslkcja ls
-              jaskjdalkj asclja a alk jajs j sa jkas kj akj kaj
+              {content.split(" ").slice(0, 30).join(" ")}
             </p>
           </div>
         </div>
       </div>
-      <div ref={rampRef} className="flex h-[5dvh] justify-between">
+      <div ref={rampRef} className="flex h-[5dvh] items-end justify-between">
         {Array.from({ length: numberOfAsteroids }).map((_, index) => (
-          <div key={index} className="h-[5dvh] w-[5dvh]">
+          <div
+            key={index}
+            className={cn(
+              "flex h-[5dvh] w-[5dvh]",
+              index % 2 === 0 ? "items-end" : "items-start",
+            )}
+          >
             <Image
               src={getRandomMeteor()}
               alt={`asteroid-${index}`}

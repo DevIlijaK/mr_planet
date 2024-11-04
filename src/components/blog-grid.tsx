@@ -43,24 +43,34 @@ import { PhysicsContextProvider } from "./providers/physics-provider";
 import { PressedKeysProvider } from "./providers/pressed-keys-provider";
 import { BottomRamp } from "./bottom-ramp";
 import { HeroSizeProvider } from "./providers/hero-size-provider";
+import { type SelectBlog } from "~/server/db/schema";
+import { getBlogs } from "~/server/queries";
 
 export const BlogGrid: FC = () => {
   const [screenSize, setScreenSize] = useState<number | null>(null);
+  const [blogs, setBlogs] = useState<SelectBlog[] | undefined>(undefined);
   const size = useScreenSize();
-  let numberOfPlanets = 9;
 
   useEffect(() => {
     setScreenSize(size);
+
+    const fetchBlogs = async () => {
+      let limit;
+      if (size < 640) {
+        limit = 3;
+      } else if (size < 1024) {
+        limit = 6;
+      } else {
+        limit = 9;
+      }
+      const response = await getBlogs({ limit });
+      setBlogs(response);
+    };
+    void fetchBlogs();
   }, [size]);
 
   if (screenSize === null) {
     return null;
-  }
-
-  if (screenSize < 640) {
-    numberOfPlanets = 3;
-  } else if (screenSize < 1024) {
-    numberOfPlanets = 6;
   }
 
   return (
@@ -75,8 +85,12 @@ export const BlogGrid: FC = () => {
       />
       <SpaceProvider>
         <div className="grid h-[90dvh] w-full grid-cols-1 gap-y-[2.5dvh] overflow-auto px-[10dvw] py-[5dvh] sm:grid-cols-2 sm:gap-x-[10dvw] sm:px-[5dvw] lg:grid-cols-3 lg:gap-x-[7.5dvw]">
-          {Array.from({ length: numberOfPlanets }).map((_, index) => (
-            <PlanetCart key={index} planet={getRandomPlanet()} />
+          {blogs?.map((blog) => (
+            <PlanetCart
+              key={blog.id}
+              content={blog.content}
+              planet={getRandomPlanet()}
+            />
           ))}
         </div>
         <BottomRamp />

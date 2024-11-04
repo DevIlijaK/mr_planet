@@ -12,14 +12,11 @@ import { pgTableCreator, text, timestamp, uuid } from "drizzle-orm/pg-core";
 export const createTable = pgTableCreator((name) => `mr_planet_${name}`);
 
 export const blog = createTable("blog", {
-  id: uuid("id").primaryKey(),
-  title: text("title").notNull().unique(),
-  blogBody: text("content").notNull(),
-  author: text("author").notNull(),
-  publicationDate: timestamp("publication_date").defaultNow(),
-  pathToMainBlogPicture: text("path_to_main_blog_picture").notNull().unique(),
-  typeOfMainBlogPicture: text("type_of_main_blog_picture").notNull(),
-  url: text("url").notNull().unique(),
+  id: uuid("id").primaryKey().defaultRandom(),
+  content: text("content").notNull(),
+  publicationDate: timestamp("publication_date", { mode: "date" })
+    .defaultNow()
+    .notNull(),
 });
 
 export type InsertBlog = typeof blog.$inferInsert;

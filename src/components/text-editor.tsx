@@ -36,9 +36,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
   }
 
   return (
-    <Menubar>
-      <AlignMenu editor={editor} />
-
+    <Menubar className="flex h-fit w-full justify-between rounded-none rounded-tl-2xl rounded-tr-2xl border-0 border-b p-3">
       <Bold
         onClick={() => {
           editor.chain().focus().toggleBold().run();
@@ -69,7 +67,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
         className={cn("h-4 w-4 cursor-pointer hover:bg-gray-100")}
         strokeWidth={editor.isActive("strike") ? 3 : 2}
       />
-
+      <AlignMenu editor={editor} />
       <Heading1Icon
         onClick={() => {
           editor.chain().focus().toggleHeading({ level: 1 }).run();

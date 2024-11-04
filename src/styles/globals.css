@@ -4,16 +4,16 @@
 
 @layer base {
   h1 {
-    @apply my-4 text-3xl font-bold text-gray-800;
+    @apply my-4 text-3xl font-bold text-white;
   }
   h2 {
-    @apply my-3 text-2xl font-bold text-gray-700;
+    @apply my-3 text-2xl font-bold text-white;
   }
   h3 {
-    @apply my-2 text-xl font-bold text-gray-600;
+    @apply my-2 text-xl font-bold text-white;
   }
   h4 {
-    @apply my-1 text-lg font-bold text-gray-500;
+    @apply my-1 text-lg font-bold text-white;
   }
   blockquote {
     @apply my-4 border-l-4 border-gray-300 bg-gray-100 pl-4 italic text-gray-600;
