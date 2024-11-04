@@ -3,23 +3,16 @@ import Image from "next/image";
 
 import { useGameLoop } from "./providers/game-loop-context";
 import { useSpace } from "./providers/space-provider";
-import { useAnimate } from "framer-motion";
-import { useState } from "react";
-import { usePhysicsContext } from "./providers/physics-provider";
+import { useRef } from "react";
 import { useHeroSize } from "./providers/hero-size-provider";
+import { cn } from "~/lib/utils";
 
 const Hero = () => {
-  const { setHeroLeft, setHeroTop, heroImage, heroTop, heroLeft } =
-    useGameLoop();
+  const { heroImage, heroTop, heroLeft, showTeleportModal } = useGameLoop();
 
   const { heroWidth, heroHeight } = useHeroSize();
-  const { initialX, initialY, screenHeight, screenWidth } = usePhysicsContext();
-  const [animationFinished, setAnimationFinished] = useState<boolean>(false);
   const { heroRef } = useSpace();
-  // console.log("test", screenHeight * 0.9 - heroHeight);
-  const topValue = Math.round(screenHeight * 0.9 - heroHeight);
-
-  const [scope, animate] = useAnimate();
+  const textRef = useRef<HTMLDivElement>(null);
 
   return (
     heroRef && (
@@ -28,6 +21,20 @@ const Hero = () => {
         ref={heroRef}
         style={{ left: heroLeft, top: heroTop }}
       >
+        {showTeleportModal && (
+          <div
+            ref={textRef}
+            className={cn(
+              "absolute left-1/2 inline-flex -translate-x-1/2 transform flex-col justify-center whitespace-nowrap rounded-2xl border border-solid bg-gray-700 p-2 text-sm",
+            )}
+            style={{ top: -90 }}
+          >
+            <div>{'Press "h"'}</div>
+            <div>{"to teleport"}</div>
+            <div>{"inside the blog"}</div>
+          </div>
+        )}
+
         <Image
           unoptimized
           src={heroImage}

@@ -25,6 +25,7 @@ interface GameLoopContextType {
   heroImage: StaticImageData;
   heroLeft: number;
   heroTop: number;
+  showTeleportModal: boolean;
   setHeroTop: Dispatch<SetStateAction<number>>;
   setHeroLeft: Dispatch<SetStateAction<number>>;
 }
@@ -67,6 +68,7 @@ export const GameLoopProvider: React.FC<{ children: React.ReactNode }> = ({
   const [heroImage, setHeroImage] = useState<StaticImageData>(hero);
   const [heroLeft, setHeroLeft] = useState<number>(50);
   const [heroTop, setHeroTop] = useState<number>(500);
+  const [showTeleportModal, setShowTeleportModal] = useState<boolean>(false);
   const initialVelocityX = useRef<number>(0);
   const initialVelocityY = useRef<number>(0);
   const time = useRef<number>(0);
@@ -90,7 +92,6 @@ export const GameLoopProvider: React.FC<{ children: React.ReactNode }> = ({
   const rampCollisionDetection = useCallback(() => {
     rampRefs.current.forEach((ramp) => {
       const rect = ramp?.getBoundingClientRect();
-
       if (
         rect &&
         heroTop + heroHeight > rect.top &&
@@ -115,6 +116,7 @@ export const GameLoopProvider: React.FC<{ children: React.ReactNode }> = ({
 
         // isFalling = false;
         setIsJumping(false);
+        setShowTeleportModal(true);
         jumpingAnimation.clear();
       }
       // else {
@@ -325,6 +327,7 @@ export const GameLoopProvider: React.FC<{ children: React.ReactNode }> = ({
         // heroDirectionsContainer.style.visibility = "hidden";
       }
     } else {
+      setShowTeleportModal(false);
       // heroDirectionsContainer.style.visibility = "hidden";
     }
   }, [
@@ -442,6 +445,7 @@ export const GameLoopProvider: React.FC<{ children: React.ReactNode }> = ({
         heroImage,
         heroLeft,
         heroTop,
+        showTeleportModal,
         setHeroTop,
         setHeroLeft,
       }}
