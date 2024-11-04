@@ -17,7 +17,6 @@ const HeroSizeContext = createContext<HeroSizeContextType | undefined>(
   undefined,
 );
 
-// Create a provider component
 export const HeroSizeProvider = ({ children }: { children: ReactNode }) => {
   const [heroWidth, setHeroWidth] = useState<number>(50);
   const [heroHeight, setHeroHeight] = useState<number>(77);

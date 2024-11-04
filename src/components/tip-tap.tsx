@@ -85,7 +85,7 @@ const Tiptap = ({ editable }: { editable: boolean }) => {
   return (
     <>
       <TextEditor editor={editor} />
-      <div className="h-full [&>*]:h-full">
+      <div className="hide-scrollbar h-full overflow-y-scroll [&>*]:h-full">
         <EditorContent editor={editor} />
       </div>
     </>

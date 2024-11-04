@@ -12,12 +12,13 @@ export async function getBlog(input: { id: string }) {
     .where(eq(blog.id, input.id));
   return selectedBlog;
 }
-export async function getBlogs(input: { limit: number }) {
-  return db
-    .select()
-    .from(blog)
-    .orderBy(desc(blog.publicationDate))
-    .limit(input.limit);
+export async function getBlogs(input?: { limit?: number }) {
+  const query = db.select().from(blog).orderBy(desc(blog.publicationDate));
+
+  if (input?.limit) {
+    query.limit(input.limit);
+  }
+  return query;
 }
 
 export async function saveBlog(input: { id?: string; content: string }) {

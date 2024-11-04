@@ -20,23 +20,15 @@ import { ListBulletIcon } from "@radix-ui/react-icons";
 
 interface TextEditorProps {
   editor: Editor | null;
-  content?: string;
-  placeholder?: string;
-  children?: React.ReactNode;
 }
 
-const TextEditor: React.FC<TextEditorProps> = ({
-  editor,
-  content,
-  placeholder,
-  children,
-}) => {
+const TextEditor: React.FC<TextEditorProps> = ({ editor }) => {
   if (!editor) {
     return null;
   }
 
   return (
-    <Menubar className="flex h-fit w-full justify-between rounded-none rounded-tl-2xl rounded-tr-2xl border-0 border-b p-3">
+    <Menubar className="flex h-fit w-full justify-between rounded-none rounded-tl-2xl rounded-tr-2xl border-0 border-b p-3 text-black">
       <Bold
         onClick={() => {
           editor.chain().focus().toggleBold().run();

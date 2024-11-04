@@ -13,7 +13,7 @@ export default async function BlogPage({ params: { id } }: BlogPageProps) {
   const sanitizedHtml = DOMPurify.sanitize(blog?.content);
 
   return (
-    <div className="h-screen overflow-y-scroll">
+    <div className="hide-scrollbar h-screen overflow-y-scroll">
       <Image
         priority
         sizes="100dvw"

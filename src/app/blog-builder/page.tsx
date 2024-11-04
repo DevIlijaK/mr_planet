@@ -32,7 +32,7 @@ export default function BlogBuilderPage() {
           className="-z-50 h-screen w-full object-cover object-center"
           fill
         />
-        <div className="flex h-full flex-col overflow-y-scroll rounded-2xl border border-solid border-gray-300 text-white first:flex">
+        <div className="flex h-full flex-col rounded-2xl border-gray-300 text-white first:flex">
           <Tiptap editable={true} />
         </div>
       </div>
