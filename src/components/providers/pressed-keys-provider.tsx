@@ -31,7 +31,7 @@ export const PressedKeysProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
-  const { setIsDynamicPictureActive, isJumping } = useMovementContext();
+  const { isDynamicPictureActive, isJumping } = useMovementContext();
 
   const handleKeyUp = useCallback(
     (event: KeyboardEvent) => {
@@ -40,15 +40,24 @@ export const PressedKeysProvider: React.FC<{ children: React.ReactNode }> = ({
         return prev;
       });
       if (pressedKeys.size === 0 && !isJumping) {
-        setIsDynamicPictureActive(false);
+        isDynamicPictureActive.current = false;
       }
     },
-    [isJumping, pressedKeys.size, setIsDynamicPictureActive],
+    [isJumping, pressedKeys.size, isDynamicPictureActive],
   );
 
   const handleKeyDown = useCallback((event: KeyboardEvent) => {
     const key = event.key.toLowerCase();
     setPressedKeys((prev) => {
+      if (key === "a") {
+        if (prev.delete("d")) {
+          isDynamicPictureActive.current = false;
+        }
+      } else if (key === "d") {
+        if (prev.delete("a")) {
+          isDynamicPictureActive.current = false;
+        }
+      }
       prev.add(key);
       return prev;
     });

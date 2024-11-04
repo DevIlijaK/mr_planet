@@ -26,11 +26,11 @@ export const HeroSizeProvider = ({ children }: { children: ReactNode }) => {
     const baseWidth = 75;
     const baseHeight = 115.5;
 
-    let scaleFactor = 1;
+    let scaleFactor = 0.7;
     if (size < 640) {
       scaleFactor = 0.4;
     } else if (size < 1024) {
-      scaleFactor = 0.75;
+      scaleFactor = 0.5;
     }
 
     setHeroWidth(baseWidth * scaleFactor);

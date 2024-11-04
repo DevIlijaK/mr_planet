@@ -63,15 +63,14 @@ export const GameLoopProvider: React.FC<{ children: React.ReactNode }> = ({
     jumpingAnimation,
     addJumpingAnimation,
     isDynamicPictureActive,
-    setIsDynamicPictureActive,
   } = useMovementContext();
   const [heroImage, setHeroImage] = useState<StaticImageData>(hero);
   const [heroLeft, setHeroLeft] = useState<number>(50);
   const [heroTop, setHeroTop] = useState<number>(500);
-  const [initialVelocityX, setInitialVelocityX] = useState<number>(0);
-  const [initialVelocityY, setInitialVelocityY] = useState<number>(0);
-  const [time, setTime] = useState<number>(0);
-  const [isTouchingSides, setIsTouchingSides] = useState<boolean>(false);
+  const initialVelocityX = useRef<number>(0);
+  const initialVelocityY = useRef<number>(0);
+  const time = useRef<number>(0);
+  const isTouchingSides = useRef<boolean>(false);
   const { rampRefs, standingElement } = useSpace();
 
   const animationFrameId = useRef<number | null>(null);
@@ -79,12 +78,12 @@ export const GameLoopProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     if (heroLeft <= 0) {
       setHeroLeft(0);
-      setIsTouchingSides(true);
+      isTouchingSides.current = true;
     } else if (heroLeft + heroWidth >= screenWidth) {
       setHeroLeft(screenWidth - heroWidth);
-      setIsTouchingSides(true);
+      isTouchingSides.current = true;
     } else {
-      setIsTouchingSides(false);
+      isTouchingSides.current = false;
     }
   }, [heroLeft, heroWidth, screenWidth]);
 
@@ -107,12 +106,12 @@ export const GameLoopProvider: React.FC<{ children: React.ReactNode }> = ({
         // console.log("Platforma top - hero visina: ", rect.top - heroHeight);
         setHeroTop(rect.top - heroHeight);
         setMaxHeight(rect.top);
-        setTime(1);
+        time.current = 1;
         setGravitationVelocity(0);
         standingElement.current = { dimension: rect, platform: ramp };
 
         setHeroImage(hero);
-        setIsDynamicPictureActive(false);
+        isDynamicPictureActive.current = false;
 
         // isFalling = false;
         setIsJumping(false);
@@ -128,11 +127,11 @@ export const GameLoopProvider: React.FC<{ children: React.ReactNode }> = ({
     heroLeft,
     heroTop,
     heroWidth,
+    isDynamicPictureActive,
     jumpingAnimation,
     maxHeight,
     rampRefs,
     setGravitationVelocity,
-    setIsDynamicPictureActive,
     setIsJumping,
     setMaxHeight,
     standingElement,
@@ -143,23 +142,28 @@ export const GameLoopProvider: React.FC<{ children: React.ReactNode }> = ({
     // console.log("Velocity: ", gravitationVelocity);
     if (gravity) {
       const gravitationVelocityLocal =
-        gravitationVelocity + 0.5 * gravity * Math.pow(time, 2);
+        gravitationVelocity + 0.5 * gravity * Math.pow(time.current, 2);
       // console.log("gravitationVelocityLocal:", gravitationVelocityLocal);
 
       const heroTopLocal =
-        initialY.current - initialVelocityY * time + gravitationVelocityLocal;
+        initialY.current -
+        initialVelocityY.current * time.current +
+        gravitationVelocityLocal;
       // console.log("heroTopLocal (calculated):", heroTopLocal);
 
-      if (!isTouchingSides) {
+      if (!isTouchingSides.current) {
         // console.log("Is touching sides: ", isTouchingSides);
-        setHeroLeft(Math.round(initialX.current - initialVelocityX * time));
+        setHeroLeft(
+          Math.round(
+            initialX.current - initialVelocityX.current * time.current,
+          ),
+        );
         //   console.log(
         //     "Hero moving left, new heroLeft:",
         //     Math.round(heroTop - initialVelocityX * time),
         //   );
       }
-
-      const timeLocal = time + 1.5;
+      time.current += 1.5;
       // console.log("timeLocal:", timeLocal);
 
       if (heroTopLocal + heroHeight <= maxHeight) {
@@ -176,8 +180,8 @@ export const GameLoopProvider: React.FC<{ children: React.ReactNode }> = ({
       // console.log("");
 
       // Update states
-      setHeroLeft((initialX) => {
-        const newHeroLeft = initialX - initialVelocityX * timeLocal;
+      setHeroLeft((heroLeft) => {
+        const newHeroLeft = heroLeft - initialVelocityX.current * time.current;
         //   console.log("New heroLeft (calculated):", newHeroLeft);
         return newHeroLeft;
       });
@@ -188,7 +192,6 @@ export const GameLoopProvider: React.FC<{ children: React.ReactNode }> = ({
       setHeroTop(heroTopLocal);
       // console.log("heroTop set to heroTopLocal:", heroTopLocal);
 
-      setTime(timeLocal);
       // console.log("time set to timeLocal:", timeLocal);
 
       // console.log("----- throwAnimation END -----");
@@ -233,13 +236,13 @@ export const GameLoopProvider: React.FC<{ children: React.ReactNode }> = ({
       initialX.current = heroLeft;
       initialY.current = heroTop;
 
-      setInitialVelocityX(jumpVelocity * Math.cos(angleInRadians));
+      initialVelocityX.current = jumpVelocity * Math.cos(angleInRadians);
       //   console.log(
       //     "initialVelocityX set to:",
       //     jumpVelocity * Math.cos(angleInRadians),
       //   );
 
-      setInitialVelocityY(jumpVelocity * Math.sin(angleInRadians));
+      initialVelocityY.current = jumpVelocity * Math.sin(angleInRadians);
       //   console.log(
       //     "initialVelocityY set to:",
       //     jumpVelocity * Math.sin(angleInRadians),
@@ -308,7 +311,7 @@ export const GameLoopProvider: React.FC<{ children: React.ReactNode }> = ({
           console.log("Ulazi ovde", isJumping);
           if (!isJumping) {
             console.log("Ulazi ovde");
-            obliqueThrowConfig(250, "d");
+            obliqueThrowConfig(260, "d");
             setHeroImage(jumpRight);
           }
           // gravityConfig(3.14159);
@@ -343,9 +346,8 @@ export const GameLoopProvider: React.FC<{ children: React.ReactNode }> = ({
       if (!isJumping) {
         obliqueThrowConfig(45, "aw");
         setHeroImage(jumpLeft);
-        setIsDynamicPictureActive(true);
+        isDynamicPictureActive.current = true;
       }
-
       throwAnimation();
     } else if (
       (pressedKeys.has("d") && pressedKeys.has("w")) ||
@@ -355,7 +357,7 @@ export const GameLoopProvider: React.FC<{ children: React.ReactNode }> = ({
       if (!isJumping) {
         obliqueThrowConfig(125, "dw");
         setHeroImage(jumpRight);
-        setIsDynamicPictureActive(true);
+        isDynamicPictureActive.current = true;
       }
 
       throwAnimation();
@@ -370,29 +372,29 @@ export const GameLoopProvider: React.FC<{ children: React.ReactNode }> = ({
         if (!isJumping) {
           obliqueThrowConfig(90, "w");
           setHeroImage(hero);
-
+          isDynamicPictureActive.current = true;
           // console.log("Uslo ovde");
         }
         throwAnimation();
-      }
-      if (pressedKeys.has("d")) {
+      } else if (pressedKeys.has("d")) {
         setHeroLeft((prev) => prev + step);
         // console.groupCollapsed("pressedKeys.has(d) ", pressedKeys.has("d"));
         // console.log("Dynamic is: ", !isDynamicPictureActive);
-        if (!isDynamicPictureActive) {
+        if (!isDynamicPictureActive.current) {
           // console.groupCollapsed("Uslo ovde run right: ", runRight);
           setHeroImage(runRight);
-          setIsDynamicPictureActive(true);
+
+          isDynamicPictureActive.current = true;
         }
       } else if (pressedKeys.has("a")) {
         setHeroLeft((prev) => prev - step);
-        if (!isDynamicPictureActive) {
+        if (!isDynamicPictureActive.current) {
           setHeroImage(runLeft);
-          setIsDynamicPictureActive(true);
+          isDynamicPictureActive.current = true;
         }
       } else if (pressedKeys.size === 0) {
         setHeroImage(hero);
-        setIsDynamicPictureActive(false);
+        isDynamicPictureActive.current = false;
       }
     }
     // rampCollisionDetection();
@@ -403,7 +405,6 @@ export const GameLoopProvider: React.FC<{ children: React.ReactNode }> = ({
     jumpingAnimation,
     obliqueThrowConfig,
     pressedKeys,
-    setIsDynamicPictureActive,
     step,
     throwAnimation,
   ]);
