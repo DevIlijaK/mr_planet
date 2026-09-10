@@ -104,3 +104,169 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Mr. Planet — the world surface.
+
+   The hero is pixel art, so the terrain is drawn to match: flat bands of
+   colour, a hard dark outline, no soft shadows. Every standing surface shares
+   the same read — dark rim, bright crust, solid body, bedrock underneath — so
+   it is always obvious what can be landed on. The top edge is dead flat
+   because it is also the collision line the physics uses.
+--------------------------------------------------------------------------- */
+
+@layer base {
+  :root {
+    --void: #0b0a1f;
+    --outline: #14122b;
+    --crust: #e6e1f5;
+    --crust-shade: #8b84ad;
+    --regolith: #474263;
+    --regolith-deep: #302c46;
+    --bedrock: #211e33;
+    --dust: #a9a3c6;
+    --signal: #ffc24b;
+  }
+
+  body {
+    background: var(--void);
+  }
+}
+
+@layer components {
+  /* Pixel art must not be smoothed when scaled. */
+  .pixelated {
+    image-rendering: pixelated;
+  }
+
+  .terrain {
+    background-image:
+      /* craters, scattered at irregular points so they don't read as a pattern */ radial-gradient(
+        circle at 9% 64%,
+        var(--regolith-deep) 0 4px,
+        transparent 4px
+      ),
+      radial-gradient(
+        circle at 23% 82%,
+        var(--regolith-deep) 0 3px,
+        transparent 3px
+      ),
+      radial-gradient(
+        circle at 41% 58%,
+        var(--regolith-deep) 0 5px,
+        transparent 5px
+      ),
+      radial-gradient(
+        circle at 58% 79%,
+        var(--regolith-deep) 0 3px,
+        transparent 3px
+      ),
+      radial-gradient(
+        circle at 72% 61%,
+        var(--regolith-deep) 0 4px,
+        transparent 4px
+      ),
+      radial-gradient(
+        circle at 88% 77%,
+        var(--regolith-deep) 0 3px,
+        transparent 3px
+      ),
+      linear-gradient(
+        to bottom,
+        var(--outline) 0 2px,
+        var(--crust) 2px 5px,
+        var(--crust-shade) 5px 10px,
+        var(--regolith) 10px 32px,
+        var(--regolith-deep) 32px calc(100% - 3px),
+        var(--outline) calc(100% - 3px) 100%
+      );
+  }
+
+  /* A blog post: a chunk of rock floating on its own, stepped underneath so it
+     reads as broken off rather than cropped. */
+  .terrain-ledge {
+    clip-path: polygon(
+      0 0,
+      100% 0,
+      100% 38%,
+      calc(100% - 16px) 38%,
+      calc(100% - 16px) 64%,
+      calc(100% - 44px) 64%,
+      calc(100% - 44px) 100%,
+      44px 100%,
+      44px 64%,
+      16px 64%,
+      16px 38%,
+      0 38%
+    );
+    /* drop-shadow follows the stepped silhouette; a border or box-shadow would
+       be clipped away by clip-path. */
+    filter: drop-shadow(2px 0 0 var(--outline))
+      drop-shadow(-2px 0 0 var(--outline)) drop-shadow(0 2px 0 var(--outline));
+  }
+
+  /* The ledge the hero is standing on right now: the crust catches the light. */
+  .terrain-ledge-active {
+    background-image: radial-gradient(
+        circle at 9% 64%,
+        var(--regolith-deep) 0 4px,
+        transparent 4px
+      ),
+      radial-gradient(
+        circle at 23% 82%,
+        var(--regolith-deep) 0 3px,
+        transparent 3px
+      ),
+      radial-gradient(
+        circle at 41% 58%,
+        var(--regolith-deep) 0 5px,
+        transparent 5px
+      ),
+      radial-gradient(
+        circle at 58% 79%,
+        var(--regolith-deep) 0 3px,
+        transparent 3px
+      ),
+      radial-gradient(
+        circle at 72% 61%,
+        var(--regolith-deep) 0 4px,
+        transparent 4px
+      ),
+      radial-gradient(
+        circle at 88% 77%,
+        var(--regolith-deep) 0 3px,
+        transparent 3px
+      ),
+      linear-gradient(
+        to bottom,
+        var(--outline) 0 2px,
+        var(--signal) 2px 5px,
+        var(--crust-shade) 5px 10px,
+        var(--regolith) 10px 32px,
+        var(--regolith-deep) 32px calc(100% - 3px),
+        var(--outline) calc(100% - 3px) 100%
+      );
+  }
+
+  /* Post titles read as level signage: pixel type lifted off the starfield by
+     a hard shadow, the way in-game text is, rather than sat in a panel. */
+  .signage {
+    text-shadow:
+      2px 2px 0 var(--void),
+      -1px 1px 0 var(--void),
+      1px -1px 0 var(--void);
+  }
+
+  /* The one place colour is spent: what you can act on, right now. */
+  .hud-prompt {
+    background: var(--void);
+    border: 2px solid var(--signal);
+    color: var(--signal);
+    box-shadow: 0 0 0 2px var(--outline);
+  }
+
+  .hud-prompt-key {
+    background: var(--signal);
+    color: var(--void);
+  }
+}

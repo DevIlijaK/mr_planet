@@ -3,48 +3,36 @@ import Image from "next/image";
 
 import { useGameLoop } from "./providers/game-loop-context";
 import { useSpace } from "./providers/space-provider";
-import { useRef } from "react";
 import { useHeroSize } from "./providers/hero-size-provider";
-import { cn } from "~/lib/utils";
 
 const Hero = () => {
-  const { heroImage, heroTop, heroLeft, showTeleportModal } = useGameLoop();
-
+  const { heroImage, showTeleportModal } = useGameLoop();
   const { heroWidth, heroHeight } = useHeroSize();
   const { heroRef } = useSpace();
-  const textRef = useRef<HTMLDivElement>(null);
 
   return (
-    heroRef && (
-      <div
-        className="absolute"
-        ref={heroRef}
-        style={{ left: heroLeft, top: heroTop }}
-      >
-        {showTeleportModal && (
-          <div
-            ref={textRef}
-            className={cn(
-              "absolute left-1/2 inline-flex -translate-x-1/2 transform flex-col justify-center whitespace-nowrap rounded-2xl border border-solid bg-gray-700 p-2 text-sm",
-            )}
-            style={{ top: -90 }}
-          >
-            <div>{'Press "h"'}</div>
-            <div>{"to teleport"}</div>
-            <div>{"inside the blog"}</div>
+    // Position is written straight to `transform` by the game loop rather than
+    // held in state, so the hero moves without re-rendering React each frame.
+    <div className="absolute left-0 top-0 will-change-transform" ref={heroRef}>
+      {showTeleportModal && (
+        <div className="absolute bottom-full left-1/2 mb-3 -translate-x-1/2">
+          <div className="hud-prompt flex items-center gap-2 whitespace-nowrap px-2 py-1 font-pixel text-[12px] leading-none">
+            <span className="hud-prompt-key px-[5px] py-[3px]">H</span>
+            <span>Read this post</span>
           </div>
-        )}
+        </div>
+      )}
 
-        <Image
-          unoptimized
-          src={heroImage}
-          width={heroWidth}
-          height={heroHeight}
-          alt="planet"
-          className="object-cover"
-        />
-      </div>
-    )
+      <Image
+        unoptimized
+        priority
+        src={heroImage}
+        width={heroWidth}
+        height={heroHeight}
+        alt="Mr. Planet"
+        className="pixelated"
+      />
+    </div>
   );
 };
 

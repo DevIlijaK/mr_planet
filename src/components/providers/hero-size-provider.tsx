@@ -23,18 +23,13 @@ export const HeroSizeProvider = ({ children }: { children: ReactNode }) => {
   const size = useScreenSize();
 
   useEffect(() => {
-    const baseWidth = 75;
-    const baseHeight = 115.5;
+    // The sprite is 150x231. Scaling by a whole-number divisor keeps every
+    // source pixel the same size on screen; anything else makes the pixel art
+    // shimmer once `image-rendering: pixelated` is on.
+    const divisor = size < 640 ? 5 : size < 1024 ? 4 : 3;
 
-    let scaleFactor = 0.7;
-    if (size < 640) {
-      scaleFactor = 0.4;
-    } else if (size < 1024) {
-      scaleFactor = 0.5;
-    }
-
-    setHeroWidth(baseWidth * scaleFactor);
-    setHeroHeight(baseHeight * scaleFactor);
+    setHeroWidth(Math.round(150 / divisor));
+    setHeroHeight(Math.round(231 / divisor));
   }, [size]);
 
   return (

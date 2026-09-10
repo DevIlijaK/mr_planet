@@ -23,7 +23,7 @@ export default async function BlogPage({ params: { id } }: BlogPageProps) {
         fill
       />
       <div
-        className="p-4 text-white sm:p-10 lg:p-40"
+        className="mx-auto max-w-[68ch] p-4 text-white sm:p-10 lg:py-24"
         dangerouslySetInnerHTML={{
           __html: sanitizedHtml,
         }}

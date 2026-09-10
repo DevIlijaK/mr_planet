@@ -14,6 +14,7 @@ import planet7 from "../../public/images/planets/planet7.png";
 import planet8 from "../../public/images/planets/planet8.png";
 import planet9 from "../../public/images/planets/planet9.png";
 import useScreenSize from "~/hooks/use-screen-size";
+import { pickIndex } from "~/lib/blog-preview";
 
 const planets: StaticImageData[] = [
   planet,
@@ -28,17 +29,15 @@ const planets: StaticImageData[] = [
   planet9,
 ];
 
-export function getRandomPlanet(): StaticImageData {
-  const randomIndex = Math.floor(Math.random() * planets.length);
-  const test = planets[randomIndex]!;
-  return test;
+/** Stable per post, so a world doesn't change colour on every re-render. */
+export function getPlanetFor(id: string): StaticImageData {
+  return planets[pickIndex(id, planets.length)]!;
 }
 
 import { useState, useEffect, type FC } from "react";
 import Hero from "./hero";
 import { GameLoopProvider } from "./providers/game-loop-context";
 import { SpaceProvider } from "./providers/space-provider";
-import { MovementProvider } from "./providers/movement-provider";
 import { PhysicsContextProvider } from "./providers/physics-provider";
 import { PressedKeysProvider } from "./providers/pressed-keys-provider";
 import { BottomRamp } from "./bottom-ramp";
@@ -79,31 +78,31 @@ export const BlogGrid: FC = () => {
         priority
         sizes="100dvw"
         src={bg}
-        alt="background-image"
-        className="-z-50 h-screen w-full object-cover object-center"
+        alt=""
+        aria-hidden
+        className="pixelated -z-50 h-screen w-full object-cover object-center"
         fill
       />
       <SpaceProvider>
-        <div className="grid h-[90dvh] w-full grid-cols-1 gap-y-[2.5dvh] overflow-auto px-[10dvw] py-[5dvh] sm:grid-cols-2 sm:gap-x-[10dvw] sm:px-[5dvw] lg:grid-cols-3 lg:gap-x-[7.5dvw]">
+        <div className="grid h-[90dvh] w-full grid-cols-1 gap-y-[2.5dvh] overflow-auto px-[6dvw] py-[5dvh] sm:grid-cols-2 sm:gap-x-[6dvw] sm:px-[4dvw] lg:grid-cols-3 lg:gap-x-[5dvw]">
           {blogs?.map((blog) => (
             <PlanetCart
               key={blog.id}
+              id={blog.id}
               content={blog.content}
-              planet={getRandomPlanet()}
+              planet={getPlanetFor(blog.id)}
             />
           ))}
         </div>
         <BottomRamp />
         <PhysicsContextProvider>
-          <MovementProvider>
-            <PressedKeysProvider>
-              <HeroSizeProvider>
-                <GameLoopProvider>
-                  <Hero />
-                </GameLoopProvider>
-              </HeroSizeProvider>
-            </PressedKeysProvider>
-          </MovementProvider>
+          <PressedKeysProvider>
+            <HeroSizeProvider>
+              <GameLoopProvider>
+                <Hero />
+              </GameLoopProvider>
+            </HeroSizeProvider>
+          </PressedKeysProvider>
         </PhysicsContextProvider>
       </SpaceProvider>
     </div>

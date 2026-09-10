@@ -1,16 +1,43 @@
+"use client";
+
 import React, {
   createContext,
   useContext,
-  useState,
   useEffect,
-  useCallback,
+  useMemo,
+  useRef,
+  type ReactNode,
 } from "react";
-import { useMovementContext } from "./movement-provider";
+
+/** Actions the hero understands, decoupled from the physical keys bound to them. */
+export type GameKey = "left" | "right" | "jump" | "teleport";
+
+const KEY_BINDINGS: Record<string, GameKey> = {
+  a: "left",
+  arrowleft: "left",
+  d: "right",
+  arrowright: "right",
+  w: "jump",
+  arrowup: "jump",
+  " ": "jump",
+  h: "teleport",
+};
+
+/** Keys the browser would otherwise use to scroll the page. */
+const SCROLL_KEYS = new Set(["arrowleft", "arrowright", "arrowup", " "]);
 
 interface PressedKeysContextType {
-  pressedKeys: Set<string>;
-  handleKeyDown: (event: KeyboardEvent) => void;
-  handleKeyUp: (event: KeyboardEvent) => void;
+  /**
+   * Keys currently held down. A ref rather than state: the game loop reads it
+   * every frame, and re-rendering the tree on each keypress is both wasteful
+   * and a source of stale closures inside the loop.
+   */
+  pressedKeys: React.MutableRefObject<Set<GameKey>>;
+  /**
+   * Edge-triggered read for one-shot actions like jumping. Returns true once
+   * per physical press, so holding the key down doesn't repeat the action.
+   */
+  consumePress: (key: GameKey) => boolean;
 }
 
 const PressedKeysContext = createContext<PressedKeysContextType | undefined>(
@@ -27,56 +54,64 @@ export const usePressedKeysContext = () => {
   return context;
 };
 
-export const PressedKeysProvider: React.FC<{ children: React.ReactNode }> = ({
+export const PressedKeysProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
-  const { isDynamicPictureActive, isJumping } = useMovementContext();
-
-  const handleKeyUp = useCallback(
-    (event: KeyboardEvent) => {
-      setPressedKeys((prev) => {
-        prev.delete(event.key.toLowerCase());
-        return prev;
-      });
-      if (pressedKeys.size === 0 && !isJumping) {
-        isDynamicPictureActive.current = false;
-      }
-    },
-    [isJumping, pressedKeys.size, isDynamicPictureActive],
-  );
-
-  const handleKeyDown = useCallback((event: KeyboardEvent) => {
-    const key = event.key.toLowerCase();
-    setPressedKeys((prev) => {
-      if (key === "a") {
-        if (prev.delete("d")) {
-          isDynamicPictureActive.current = false;
-        }
-      } else if (key === "d") {
-        if (prev.delete("a")) {
-          isDynamicPictureActive.current = false;
-        }
-      }
-      prev.add(key);
-      return prev;
-    });
-  }, []);
+  const pressedKeys = useRef<Set<GameKey>>(new Set());
+  const freshPresses = useRef<Set<GameKey>>(new Set());
 
   useEffect(() => {
+    const isTyping = (target: EventTarget | null) =>
+      target instanceof HTMLElement &&
+      (target.isContentEditable ||
+        ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName));
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.repeat || isTyping(event.target)) return;
+      const lowered = event.key.toLowerCase();
+      const key = KEY_BINDINGS[lowered];
+      if (!key) return;
+      if (SCROLL_KEYS.has(lowered)) event.preventDefault();
+
+      freshPresses.current.add(key);
+      pressedKeys.current.add(key);
+    };
+
+    const handleKeyUp = (event: KeyboardEvent) => {
+      const key = KEY_BINDINGS[event.key.toLowerCase()];
+      if (key) pressedKeys.current.delete(key);
+    };
+
+    /**
+     * Key-up never arrives if the tab loses focus mid-press, which would leave
+     * the hero running in that direction forever.
+     */
+    const handleBlur = () => {
+      pressedKeys.current.clear();
+      freshPresses.current.clear();
+    };
+
     window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("keyup", handleKeyUp);
+    window.addEventListener("blur", handleBlur);
 
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
+      window.removeEventListener("blur", handleBlur);
     };
-  }, [handleKeyDown, handleKeyUp]);
+  }, []);
+
+  const value = useMemo<PressedKeysContextType>(
+    () => ({
+      pressedKeys,
+      consumePress: (key: GameKey) => freshPresses.current.delete(key),
+    }),
+    [],
+  );
 
   return (
-    <PressedKeysContext.Provider
-      value={{ pressedKeys, handleKeyDown, handleKeyUp }}
-    >
+    <PressedKeysContext.Provider value={value}>
       {children}
     </PressedKeysContext.Provider>
   );

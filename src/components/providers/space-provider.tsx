@@ -1,23 +1,29 @@
+"use client";
+
 import React, {
   createContext,
+  useCallback,
   useContext,
+  useMemo,
   useRef,
   type ReactNode,
 } from "react";
 
-interface SpaceContextType {
-  rampRefs: React.MutableRefObject<HTMLDivElement[]>;
-  heroRef: React.MutableRefObject<HTMLDivElement | null>;
-  standingElement: React.MutableRefObject<{
-    dimension: Rect;
-    platform: HTMLDivElement | undefined;
-  } | null>;
+import { type Platform } from "~/lib/hero-physics";
+
+export interface StandingOn {
+  rect: Platform;
+  element: HTMLDivElement;
 }
-interface Rect {
-  width: number;
-  height: number;
-  top: number;
-  left: number;
+
+interface SpaceContextType {
+  /** Every surface the hero can stand on. */
+  ramps: React.MutableRefObject<Set<HTMLDivElement>>;
+  /** Registers a ramp and returns the matching cleanup, for use from an effect. */
+  registerRamp: (element: HTMLDivElement) => () => void;
+  heroRef: React.MutableRefObject<HTMLDivElement | null>;
+  /** The ramp the hero is currently standing on, or null while airborne. */
+  standingElement: React.MutableRefObject<StandingOn | null>;
 }
 
 const SpaceContext = createContext<SpaceContextType | undefined>(undefined);
@@ -25,17 +31,29 @@ const SpaceContext = createContext<SpaceContextType | undefined>(undefined);
 export const SpaceProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const rampRefs = useRef<HTMLDivElement[]>([]);
+  /**
+   * A Set rather than an array: ramps register from an effect, and in strict
+   * mode (or on any remount) an array quietly collects duplicates of the same
+   * element.
+   */
+  const ramps = useRef<Set<HTMLDivElement>>(new Set());
   const heroRef = useRef<HTMLDivElement | null>(null);
-  const standingElement = useRef<{
-    dimension: Rect;
-    platform: HTMLDivElement | undefined;
-  } | null>(null);
+  const standingElement = useRef<StandingOn | null>(null);
+
+  const registerRamp = useCallback((element: HTMLDivElement) => {
+    ramps.current.add(element);
+    return () => {
+      ramps.current.delete(element);
+    };
+  }, []);
+
+  const value = useMemo<SpaceContextType>(
+    () => ({ ramps, registerRamp, heroRef, standingElement }),
+    [registerRamp],
+  );
 
   return (
-    <SpaceContext.Provider value={{ rampRefs, heroRef, standingElement }}>
-      {children}
-    </SpaceContext.Provider>
+    <SpaceContext.Provider value={value}>{children}</SpaceContext.Provider>
   );
 };
 

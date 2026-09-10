@@ -1,11 +1,5 @@
-"use client";
-
-import { BlogGrid } from "~/components/blog-grid";
+import { redirect } from "next/navigation";
 
 export default function HomePage() {
-  return (
-    <main className="text-white">
-      <BlogGrid />
-    </main>
-  );
+  redirect("/blog-grid");
 }

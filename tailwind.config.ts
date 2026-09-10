@@ -8,6 +8,7 @@ export default {
     extend: {
       fontFamily: {
         sans: ["var(--font-geist-sans)", ...fontFamily.sans],
+        pixel: ["var(--font-pixel)", ...fontFamily.sans],
       },
       borderRadius: {
         lg: "var(--radius)",
