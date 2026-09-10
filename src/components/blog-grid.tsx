@@ -42,6 +42,8 @@ import { PhysicsContextProvider } from "./providers/physics-provider";
 import { PressedKeysProvider } from "./providers/pressed-keys-provider";
 import { BottomRamp } from "./bottom-ramp";
 import { HeroSizeProvider } from "./providers/hero-size-provider";
+import { TouchControls } from "./touch-controls";
+import useCoarsePointer from "~/hooks/use-coarse-pointer";
 import { type SelectBlog } from "~/server/db/schema";
 import { getBlogs } from "~/server/queries";
 
@@ -49,6 +51,7 @@ export const BlogGrid: FC = () => {
   const [screenSize, setScreenSize] = useState<number | null>(null);
   const [blogs, setBlogs] = useState<SelectBlog[] | undefined>(undefined);
   const size = useScreenSize();
+  const onTouch = useCoarsePointer();
 
   useEffect(() => {
     setScreenSize(size);
@@ -73,18 +76,21 @@ export const BlogGrid: FC = () => {
   }
 
   return (
-    <div className="relative flex h-screen w-full flex-col justify-between overflow-hidden align-middle">
+    <div className="game-viewport relative flex w-full flex-col justify-between overflow-hidden align-middle">
       <Image
         priority
         sizes="100dvw"
         src={bg}
         alt=""
         aria-hidden
-        className="pixelated -z-50 h-screen w-full object-cover object-center"
+        className="pixelated -z-50 object-cover object-center"
         fill
       />
       <SpaceProvider>
-        <div className="grid h-[90dvh] w-full grid-cols-1 gap-y-[2.5dvh] overflow-auto px-[6dvw] py-[5dvh] sm:grid-cols-2 sm:gap-x-[6dvw] sm:px-[4dvw] lg:grid-cols-3 lg:gap-x-[5dvw]">
+        {/* overscroll-contain: on a phone, a swipe that runs past the end of
+            this list must not hand the scroll to the page and drag the whole
+            scene around. */}
+        <div className="grid h-[90dvh] w-full grid-cols-1 gap-y-[2.5dvh] overflow-auto overscroll-contain px-[6dvw] py-[5dvh] sm:grid-cols-2 sm:gap-x-[6dvw] sm:px-[4dvw] lg:grid-cols-3 lg:gap-x-[5dvw]">
           {blogs?.map((blog) => (
             <PlanetCart
               key={blog.id}
@@ -102,6 +108,10 @@ export const BlogGrid: FC = () => {
                 <Hero />
               </GameLoopProvider>
             </HeroSizeProvider>
+            {/* Outside the game loop — it only ever writes input — but inside
+                the key provider, so a thumb and a keyboard reach the hero by
+                exactly the same route. */}
+            {onTouch && <TouchControls />}
           </PressedKeysProvider>
         </PhysicsContextProvider>
       </SpaceProvider>

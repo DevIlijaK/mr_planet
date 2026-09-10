@@ -2,6 +2,7 @@
 
 import React, {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -38,6 +39,13 @@ interface PressedKeysContextType {
    * per physical press, so holding the key down doesn't repeat the action.
    */
   consumePress: (key: GameKey) => boolean;
+  /**
+   * Holds an action down from something that isn't a key — the on-screen
+   * controls on touch devices. Deliberately writes to the same two refs the
+   * keyboard does, so the game loop never learns where input came from.
+   */
+  press: (key: GameKey) => void;
+  release: (key: GameKey) => void;
 }
 
 const PressedKeysContext = createContext<PressedKeysContextType | undefined>(
@@ -59,6 +67,18 @@ export const PressedKeysProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
   const pressedKeys = useRef<Set<GameKey>>(new Set());
   const freshPresses = useRef<Set<GameKey>>(new Set());
+
+  const press = useCallback((key: GameKey) => {
+    // A second press of something already held is ignored: it would re-arm the
+    // edge trigger, and a finger resting on the jump button would fire twice.
+    if (pressedKeys.current.has(key)) return;
+    freshPresses.current.add(key);
+    pressedKeys.current.add(key);
+  }, []);
+
+  const release = useCallback((key: GameKey) => {
+    pressedKeys.current.delete(key);
+  }, []);
 
   useEffect(() => {
     const isTyping = (target: EventTarget | null) =>
@@ -84,21 +104,29 @@ export const PressedKeysProvider: React.FC<{ children: ReactNode }> = ({
 
     /**
      * Key-up never arrives if the tab loses focus mid-press, which would leave
-     * the hero running in that direction forever.
+     * the hero running in that direction forever. A phone backgrounded
+     * mid-hold strands input the same way, but reports it through
+     * visibilitychange rather than blur.
      */
-    const handleBlur = () => {
+    const releaseEverything = () => {
       pressedKeys.current.clear();
       freshPresses.current.clear();
     };
 
+    const handleVisibility = () => {
+      if (document.hidden) releaseEverything();
+    };
+
     window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("keyup", handleKeyUp);
-    window.addEventListener("blur", handleBlur);
+    window.addEventListener("blur", releaseEverything);
+    document.addEventListener("visibilitychange", handleVisibility);
 
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
-      window.removeEventListener("blur", handleBlur);
+      window.removeEventListener("blur", releaseEverything);
+      document.removeEventListener("visibilitychange", handleVisibility);
     };
   }, []);
 
@@ -106,8 +134,10 @@ export const PressedKeysProvider: React.FC<{ children: ReactNode }> = ({
     () => ({
       pressedKeys,
       consumePress: (key: GameKey) => freshPresses.current.delete(key),
+      press,
+      release,
     }),
-    [],
+    [press, release],
   );
 
   return (

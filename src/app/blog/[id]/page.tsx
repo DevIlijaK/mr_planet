@@ -13,13 +13,21 @@ export default async function BlogPage({ params: { id } }: BlogPageProps) {
   const sanitizedHtml = DOMPurify.sanitize(blog?.content);
 
   return (
-    <div className="hide-scrollbar h-screen overflow-y-scroll">
+    <div
+      className="hide-scrollbar h-[100dvh] overflow-y-scroll overscroll-contain"
+      // viewport-fit=cover lets the starfield run under the notch; the text
+      // must not follow it there when the phone is held sideways.
+      style={{
+        paddingLeft: "env(safe-area-inset-left)",
+        paddingRight: "env(safe-area-inset-right)",
+      }}
+    >
       <Image
         priority
         sizes="100dvw"
         src={bg}
         alt="background-image"
-        className="-z-50 h-screen w-full object-cover object-center"
+        className="-z-50 h-[100dvh] w-full object-cover object-center"
         fill
       />
       <div

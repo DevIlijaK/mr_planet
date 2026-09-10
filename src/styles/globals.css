@@ -270,3 +270,125 @@
     color: var(--void);
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Playing on a phone.
+
+   The game is a fixed, full-viewport scene, so the page itself must not behave
+   like a document: no rubber-banding, no pull-to-refresh, no double-tap zoom
+   on the controls. Reading a post is still a document, so pinch-zoom is left
+   alone globally and only switched off where a thumb is meant to be driving.
+--------------------------------------------------------------------------- */
+
+@layer base {
+  html {
+    /* iOS enlarges text when a phone is turned to landscape, which resizes the
+       signage out of proportion with a level measured in dvh. */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  html,
+  body {
+    /* No pull-to-refresh, and no elastic overscroll revealing blank page
+       behind the starfield. */
+    overscroll-behavior: none;
+  }
+
+  /* Lives in `base` rather than beside the button it sizes: Tailwind
+     tree-shakes `components` against the class names it finds in the source,
+     and a bare `:root` rule matches none of them. */
+  :root {
+    --touch-size: 3.75rem;
+  }
+
+  /* Short viewports — a phone held in landscape — have no room for a 60px
+     control stack sitting on a 10dvh floor. */
+  @media (max-height: 480px) {
+    :root {
+      --touch-size: 3rem;
+    }
+  }
+}
+
+@layer components {
+  /* The full-viewport game scene. `dvh` rather than `vh`: on a phone `100vh`
+     is the height with the browser chrome hidden, so the floor sits below the
+     fold until the URL bar happens to scroll away. */
+  .game-viewport {
+    height: 100dvh;
+    /* Kept in step with the ceiling and floor the physics clamps against,
+       which come from window.innerHeight. */
+    max-height: 100dvh;
+  }
+
+  /* On-screen controls: the pixel HUD language, translucent enough that the
+     rock and the hero read through them. */
+  .touch-button {
+    display: grid;
+    place-items: center;
+    width: var(--touch-size);
+    height: var(--touch-size);
+    /* Opaque fallback first, for engines without color-mix. */
+    background: var(--void);
+    background: color-mix(in srgb, var(--void) 72%, transparent);
+    border: 2px solid var(--signal);
+    box-shadow: 0 0 0 2px var(--outline);
+    color: var(--signal);
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    /* No blue flash, and no magnifier or copy sheet on a long press. */
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+  }
+
+  .touch-button:active {
+    background: var(--signal);
+    color: var(--void);
+  }
+
+  .touch-button-jump {
+    width: calc(var(--touch-size) * 1.25);
+    height: calc(var(--touch-size) * 1.25);
+  }
+
+  /* Borders rather than a glyph or an icon: a triangle drawn this way has hard
+     edges at any size, which a smoothed vector icon next to pixel art does
+     not. `currentColor` lets it invert with the button on press. */
+  .touch-arrow {
+    display: block;
+    width: 0;
+    height: 0;
+    border-style: solid;
+  }
+
+  .touch-arrow-left {
+    border-width: 10px 14px 10px 0;
+    border-color: transparent currentColor transparent transparent;
+  }
+
+  .touch-arrow-right {
+    border-width: 10px 0 10px 14px;
+    border-color: transparent transparent transparent currentColor;
+  }
+
+  .touch-arrow-up {
+    border-width: 0 12px 16px 12px;
+    border-color: transparent transparent currentColor transparent;
+  }
+
+  /* The teleport prompt as a thumb target. Padded out to a comfortable tap
+     size, since on a phone it is a control and not just a caption. */
+  .hud-prompt-tappable {
+    min-height: 2.5rem;
+    touch-action: none;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+  }
+
+  .hud-prompt-tappable:active {
+    background: var(--signal);
+    color: var(--void);
+  }
+}

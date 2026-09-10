@@ -51,11 +51,39 @@ export const PhysicsContextProvider: React.FC<{ children: ReactNode }> = ({
 
   useEffect(() => {
     const handleResize = () =>
-      setViewport({ width: window.innerWidth, height: window.innerHeight });
+      setViewport((previous) => {
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        // Mobile browsers fire these in bursts as the URL bar slides. Handing
+        // back the same object keeps the physics values — and so the game
+        // loop's frame callback — from being rebuilt on every one of them.
+        if (previous.width === width && previous.height === height) {
+          return previous;
+        }
+        return { width, height };
+      });
 
     handleResize();
     window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    // Turning the phone doesn't always report through `resize` alone. This can
+    // read the pre-rotation size — iOS fires it before the new one settles —
+    // but a resize follows within the frame and the guard above means the
+    // stale reading costs nothing when it was already correct.
+    window.addEventListener("orientationchange", handleResize);
+    /**
+     * The one that matters on a phone: showing or hiding the URL bar changes
+     * the visible height — and with it `100dvh`, and so where the floor is
+     * drawn — without necessarily firing a window resize. `innerHeight` stays
+     * the value being read, because unlike `visualViewport.height` it ignores
+     * pinch-zoom, which must not be mistaken for the level getting shorter.
+     */
+    window.visualViewport?.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("orientationchange", handleResize);
+      window.visualViewport?.removeEventListener("resize", handleResize);
+    };
   }, []);
 
   const value = useMemo<PhysicsContextType>(() => {
