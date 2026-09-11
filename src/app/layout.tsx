@@ -1,14 +1,26 @@
 import "~/styles/globals.css";
 
 import { GeistSans } from "geist/font/sans";
-import { Pixelify_Sans } from "next/font/google";
+import { Literata, Pixelify_Sans } from "next/font/google";
 import { type Metadata, type Viewport } from "next";
 
-// The HUD face: titles, signage, prompts. Reading copy stays on Geist.
+// The HUD face: signage in the level, and the one control on a post that
+// leads back to it.
 const pixelify = Pixelify_Sans({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
   variable: "--font-pixel",
+});
+
+// Posts are read light-on-dark, where a high-contrast display serif goes thin
+// and starts to shimmer. Literata is a low-contrast screen-reading face and
+// keeps its weight on a dark ground.
+const literata = Literata({
+  subsets: ["latin"],
+  weight: ["400", "600"],
+  style: ["normal", "italic"],
+  variable: "--font-reading",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -34,7 +46,10 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${GeistSans.variable} ${pixelify.variable}`}>
+    <html
+      lang="en"
+      className={`${GeistSans.variable} ${pixelify.variable} ${literata.variable}`}
+    >
       <body>{children}</body>
     </html>
   );
