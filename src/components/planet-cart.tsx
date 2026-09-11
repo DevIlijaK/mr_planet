@@ -3,12 +3,13 @@
 import Image, { type StaticImageData } from "next/image";
 import React, { useCallback } from "react";
 import { useSpace } from "./providers/space-provider";
-import { getTeaser, getTitle, pickIndex } from "~/lib/blog-preview";
+import { pickIndex } from "~/lib/planet";
 
 interface PlanetCartProps {
-  id: string;
+  slug: string;
   planet: StaticImageData;
-  content: string;
+  title: string;
+  excerpt: string;
 }
 
 /** Ledge widths, as a share of the column. Uneven lengths and offsets are what
@@ -20,9 +21,10 @@ const SPANS = [72, 100, 84, 62, 92, 76];
  * bottom is the collision surface; the world and its signage sit on top of it.
  */
 export const PlanetCart: React.FC<PlanetCartProps> = ({
-  id,
+  slug,
   planet,
-  content,
+  title,
+  excerpt,
 }) => {
   const { registerRamp } = useSpace();
 
@@ -35,9 +37,9 @@ export const PlanetCart: React.FC<PlanetCartProps> = ({
     [registerRamp],
   );
 
-  // Derived from the post id so a platform keeps its shape between renders.
-  const span = SPANS[pickIndex(id, SPANS.length)]!;
-  const alignRight = pickIndex(`${id}~`, 2) === 1;
+  // Derived from the slug so a platform keeps its shape between renders.
+  const span = SPANS[pickIndex(slug, SPANS.length)]!;
+  const alignRight = pickIndex(`${slug}~`, 2) === 1;
 
   return (
     <div className="flex h-[25dvh] w-full flex-col justify-end">
@@ -45,10 +47,10 @@ export const PlanetCart: React.FC<PlanetCartProps> = ({
         {/* my-0 defeats the global heading margins, which are meant for the
             article page and blow this composition apart. */}
         <h2 className="my-0 line-clamp-2 font-pixel text-[17px] font-medium leading-tight text-[color:var(--crust)]">
-          {getTitle(content)}
+          {title}
         </h2>
         <p className="mt-1 line-clamp-2 max-w-[46ch] text-[11px] leading-snug text-[color:var(--dust)]">
-          {getTeaser(content)}
+          {excerpt}
         </p>
       </div>
 
@@ -70,7 +72,14 @@ export const PlanetCart: React.FC<PlanetCartProps> = ({
           />
         </div>
 
-        <div ref={rampRef} className="terrain terrain-ledge h-[6dvh] w-full" />
+        {/* The slug rides on the collision surface itself: the game loop knows
+            which ledge the hero is standing on, and this is how that becomes a
+            post to open. */}
+        <div
+          ref={rampRef}
+          data-slug={slug}
+          className="terrain terrain-ledge h-[6dvh] w-full"
+        />
       </div>
     </div>
   );

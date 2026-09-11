@@ -392,3 +392,137 @@
     color: var(--void);
   }
 }
+
+/* ---------------------------------------------------------------------------
+   A post.
+
+   Deliberately outside @layer, like .hide-scrollbar above: these are plain
+   descendant rules, and keeping them out of `components` keeps them out of
+   Tailwind's class-name tree-shaking.
+
+   The base rules near the top of this file style bare h2/ul/blockquote for a
+   white page — they were written for the editor. A post is read on the
+   starfield, so everything inside .post is restated against the dark palette
+   rather than inherited from them.
+--------------------------------------------------------------------------- */
+
+.post {
+  color: var(--crust);
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.post > *:first-child {
+  margin-top: 0;
+}
+
+.post p {
+  margin: 1.15em 0;
+}
+
+.post h1,
+.post h2,
+.post h3 {
+  font-family: var(--font-pixel), system-ui, sans-serif;
+  color: #fff;
+  line-height: 1.25;
+}
+
+.post h2 {
+  margin: 1.9em 0 0.5em;
+  font-size: 1.45em;
+}
+
+.post h3 {
+  margin: 1.6em 0 0.4em;
+  font-size: 1.15em;
+}
+
+.post a {
+  color: var(--signal);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+.post a:visited {
+  color: var(--signal);
+}
+
+.post a:hover {
+  color: #fff;
+}
+
+.post ul,
+.post ol {
+  margin: 1.15em 0;
+  padding-left: 1.4em;
+  /* The base rules put bare lists in near-black, for the white editor page. */
+  color: var(--crust);
+}
+
+.post li {
+  margin: 0.4em 0;
+}
+
+.post li::marker {
+  color: var(--signal);
+}
+
+.post blockquote {
+  margin: 1.6em 0;
+  padding: 0.2em 0 0.2em 1.1em;
+  border: 0;
+  border-left: 3px solid var(--signal);
+  background: none;
+  color: var(--dust);
+  font-style: italic;
+}
+
+.post img {
+  /* Never wider than the column, and never distorted by the width it lands in. */
+  max-width: 100%;
+  height: auto;
+  margin: 1.8em 0;
+  border: 2px solid var(--outline);
+}
+
+.post hr {
+  margin: 2.4em 0;
+  border: 0;
+  border-top: 2px solid var(--regolith);
+}
+
+.post code {
+  padding: 0.15em 0.35em;
+  background: var(--outline);
+  color: var(--crust);
+  font-size: 0.9em;
+}
+
+.post pre {
+  margin: 1.5em 0;
+  padding: 1em;
+  background: var(--outline);
+  /* Long lines scroll in their own box rather than widening the page. */
+  overflow-x: auto;
+}
+
+.post pre code {
+  padding: 0;
+  background: none;
+}
+
+.post table {
+  width: 100%;
+  margin: 1.5em 0;
+  border-collapse: collapse;
+  display: block;
+  overflow-x: auto;
+}
+
+.post th,
+.post td {
+  padding: 0.5em 0.7em;
+  border: 1px solid var(--regolith);
+  text-align: left;
+}

@@ -1,6 +1,7 @@
 "use client";
 
 import { type StaticImageData } from "next/image";
+import { useRouter } from "next/navigation";
 import React, {
   createContext,
   useCallback,
@@ -16,6 +17,7 @@ import runLeft from "../../../public/images/hero/run-left.gif";
 import jumpRight from "../../../public/images/hero/jump-right.png";
 import jumpLeft from "../../../public/images/hero/jump-left.png";
 import { createHeroState, stepHero, type Platform } from "~/lib/hero-physics";
+import { postHref, resolveTeleport } from "~/lib/teleport";
 import { usePhysicsContext } from "./physics-provider";
 import { usePressedKeysContext } from "./pressed-keys-provider";
 import { useSpace } from "./space-provider";
@@ -52,6 +54,8 @@ export const GameLoopProvider: React.FC<{ children: ReactNode }> = ({
   const { heroWidth, heroHeight } = useHeroSize();
   const { ramps, heroRef, standingElement } = useSpace();
 
+  const router = useRouter();
+
   const [heroImage, setHeroImage] = useState<StaticImageData>(hero);
   const [showTeleportModal, setShowTeleportModal] = useState(false);
 
@@ -61,6 +65,12 @@ export const GameLoopProvider: React.FC<{ children: ReactNode }> = ({
   const renderedModal = useRef(false);
   /** The ledge currently lit up, so it can be dimmed again on the way out. */
   const litLedge = useRef<HTMLDivElement | null>(null);
+  /**
+   * One teleport per landing. The loop keeps running for the frames between
+   * the push and the new route painting, and without this every one of them
+   * would fire another navigation.
+   */
+  const teleporting = useRef(false);
 
   const frame = useCallback(
     (delta: number) => {
@@ -116,6 +126,19 @@ export const GameLoopProvider: React.FC<{ children: ReactNode }> = ({
         litLedge.current = toLight;
       }
 
+      // Drained every frame, not just while standing on something: a press
+      // made in mid-air would otherwise sit in the buffer and open a post the
+      // instant the hero touched down.
+      const opening = resolveTeleport({
+        pressed: consumePress("teleport"),
+        slug: toLight?.dataset.slug ?? null,
+        alreadyLeaving: teleporting.current,
+      });
+      if (opening) {
+        teleporting.current = true;
+        router.push(postHref(opening));
+      }
+
       if (heroRef.current) {
         heroRef.current.style.transform = `translate3d(${next.x}px, ${next.y}px, 0)`;
       }
@@ -155,6 +178,7 @@ export const GameLoopProvider: React.FC<{ children: ReactNode }> = ({
       moveSpeed,
       pressedKeys,
       ramps,
+      router,
       screenHeight,
       screenWidth,
       standingElement,

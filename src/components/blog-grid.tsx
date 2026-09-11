@@ -1,6 +1,8 @@
 "use client";
 
 import Image, { type StaticImageData } from "next/image";
+import { useState, useEffect, type FC } from "react";
+
 import { PlanetCart } from "./planet-cart";
 import bg from "../../public/images/background.gif";
 import planet from "../../public/images/planets/planet.png";
@@ -14,7 +16,16 @@ import planet7 from "../../public/images/planets/planet7.png";
 import planet8 from "../../public/images/planets/planet8.png";
 import planet9 from "../../public/images/planets/planet9.png";
 import useScreenSize from "~/hooks/use-screen-size";
-import { pickIndex } from "~/lib/blog-preview";
+import useCoarsePointer from "~/hooks/use-coarse-pointer";
+import { pickIndex } from "~/lib/planet";
+import Hero from "./hero";
+import { GameLoopProvider } from "./providers/game-loop-context";
+import { SpaceProvider } from "./providers/space-provider";
+import { PhysicsContextProvider } from "./providers/physics-provider";
+import { PressedKeysProvider } from "./providers/pressed-keys-provider";
+import { BottomRamp } from "./bottom-ramp";
+import { HeroSizeProvider } from "./providers/hero-size-provider";
+import { TouchControls } from "./touch-controls";
 
 const planets: StaticImageData[] = [
   planet,
@@ -30,50 +41,44 @@ const planets: StaticImageData[] = [
 ];
 
 /** Stable per post, so a world doesn't change colour on every re-render. */
-export function getPlanetFor(id: string): StaticImageData {
-  return planets[pickIndex(id, planets.length)]!;
+export function getPlanetFor(slug: string): StaticImageData {
+  return planets[pickIndex(slug, planets.length)]!;
 }
 
-import { useState, useEffect, type FC } from "react";
-import Hero from "./hero";
-import { GameLoopProvider } from "./providers/game-loop-context";
-import { SpaceProvider } from "./providers/space-provider";
-import { PhysicsContextProvider } from "./providers/physics-provider";
-import { PressedKeysProvider } from "./providers/pressed-keys-provider";
-import { BottomRamp } from "./bottom-ramp";
-import { HeroSizeProvider } from "./providers/hero-size-provider";
-import { TouchControls } from "./touch-controls";
-import useCoarsePointer from "~/hooks/use-coarse-pointer";
-import { type SelectBlog } from "~/server/db/schema";
-import { getBlogs } from "~/server/queries";
+/** What the post needs to be a planet. The body stays on the server. */
+export type PlanetPost = {
+  slug: string;
+  title: string;
+  excerpt: string;
+};
 
-export const BlogGrid: FC = () => {
+/**
+ * How many worlds fit on screen before the level stops reading as a level. The
+ * grid is one column on a phone and three on a desktop, so this is really a
+ * row count in disguise.
+ */
+function visibleCount(width: number) {
+  if (width < 640) return 3;
+  if (width < 1024) return 6;
+  return 9;
+}
+
+export const BlogGrid: FC<{ posts: PlanetPost[] }> = ({ posts }) => {
   const [screenSize, setScreenSize] = useState<number | null>(null);
-  const [blogs, setBlogs] = useState<SelectBlog[] | undefined>(undefined);
   const size = useScreenSize();
   const onTouch = useCoarsePointer();
 
   useEffect(() => {
     setScreenSize(size);
-
-    const fetchBlogs = async () => {
-      let limit;
-      if (size < 640) {
-        limit = 3;
-      } else if (size < 1024) {
-        limit = 6;
-      } else {
-        limit = 9;
-      }
-      const response = await getBlogs({ limit });
-      setBlogs(response);
-    };
-    void fetchBlogs();
   }, [size]);
 
+  // Held back until the width is known on the client: the level is laid out in
+  // rows that have to match the collision surfaces the physics measures.
   if (screenSize === null) {
     return null;
   }
+
+  const visible = posts.slice(0, visibleCount(screenSize));
 
   return (
     <div className="game-viewport relative flex w-full flex-col justify-between overflow-hidden align-middle">
@@ -91,12 +96,13 @@ export const BlogGrid: FC = () => {
             this list must not hand the scroll to the page and drag the whole
             scene around. */}
         <div className="grid h-[90dvh] w-full grid-cols-1 gap-y-[2.5dvh] overflow-auto overscroll-contain px-[6dvw] py-[5dvh] sm:grid-cols-2 sm:gap-x-[6dvw] sm:px-[4dvw] lg:grid-cols-3 lg:gap-x-[5dvw]">
-          {blogs?.map((blog) => (
+          {visible.map((post) => (
             <PlanetCart
-              key={blog.id}
-              id={blog.id}
-              content={blog.content}
-              planet={getPlanetFor(blog.id)}
+              key={post.slug}
+              slug={post.slug}
+              title={post.title}
+              excerpt={post.excerpt}
+              planet={getPlanetFor(post.slug)}
             />
           ))}
         </div>
