@@ -1,6 +1,6 @@
 "use client";
 
-import { type FC } from "react";
+import { type FC, useRef } from "react";
 import { type LevelPost } from "~/lib/level";
 import { useGameLoop } from "./providers/game-loop-context";
 
@@ -14,6 +14,12 @@ interface HudProps {
 export const Hud: FC<HudProps> = ({ postCount, post }) => {
   const { hasMoreAbove, phase, teleport } = useGameLoop();
   const canRead = post !== null && phase === "playing";
+
+  // The post is gone the frame he jumps, but the button takes 200ms to fade.
+  // Keep naming the last post so it never reads as a blank "Read" on the way out.
+  const lastPost = useRef<LevelPost | null>(null);
+  if (post) lastPost.current = post;
+  const shown = post ?? lastPost.current;
 
   return (
     <>
@@ -62,7 +68,7 @@ export const Hud: FC<HudProps> = ({ postCount, post }) => {
           <kbd className="hud-prompt-key fine-only px-[6px] py-[3px]">H</kbd>
           <span className="truncate">
             Read{" "}
-            <span className="font-sans text-[13px] font-semibold text-[color:var(--crust)]">“{post?.title}”</span>
+            <span className="font-sans text-[13px] font-semibold text-[color:var(--crust)]">“{shown?.title}”</span>
           </span>
         </button>
       </div>
