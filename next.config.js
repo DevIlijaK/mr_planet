@@ -5,6 +5,11 @@
 await import("./src/env.js");
 
 /** @type {import("next").NextConfig} */
-const config = {};
+const config = {
+  async redirects() {
+    // The game used to live here.
+    return [{ source: "/blog-grid", destination: "/", permanent: true }];
+  },
+};
 
 export default config;

@@ -44,3 +44,9 @@ yarn-error.log*
 
 # idea files
 .idea
+# local agent state
+.claude/settings.local.json
+.claude/worktrees/
+
+# files parked for review before deletion (all still in git history)
+/review-to-delete/

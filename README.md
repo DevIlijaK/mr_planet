@@ -1,29 +1,42 @@
-# Create T3 App
+# Mr. Planet
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+[ilijakosanin.dev](https://ilijakosanin.dev)'s blog as a platformer. Every
+post is a ledge; jump onto one and press **H** to read it. On a phone the
+level is a tower — climb it with the on-screen pad.
 
-## What's next? How do I make an app with this?
+## How it works
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+- **Posts** are the markdown files in `content/blog`, copied from the
+  `cv-app-v2` repo. There is no database, no CMS and no environment variable;
+  the site builds to static HTML.
+- **The level** is generated from the posts and the viewport in
+  `src/lib/level.ts`: one ledge per post, newest at the bottom, rows one jump
+  apart, open air on both sides of every ledge. Wide screens get a 3×3 grid
+  (empty slots become "Coming soon"), phones get one post per row and a
+  camera that follows the hero.
+- **Physics** lives in `src/lib/hero-physics.ts`, pure and unit-tested.
+  Tuning that scales with the screen is in `src/lib/tuning.ts`.
+- **Reading** happens at `/blog/[slug]`, statically generated for every post
+  in both languages. Mr. Planet waits in the corner; **Esc** (or tapping him)
+  beams you back to the ledge you came from.
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+## Commands
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Drizzle](https://orm.drizzle.team)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+```sh
+pnpm dev          # http://localhost:3000
+pnpm check        # lint, types, unit tests
+pnpm build        # production build (static)
+pnpm sync:blog    # copy posts + images from ../cv-app-v2 (or CV_APP=/path)
+```
 
-## Learn More
+Publishing a post: write it in `cv-app-v2/content/blog`, run
+`pnpm sync:blog` here, commit `content/blog` and `public/blog`, push.
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+## Controls
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
-
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
-
-## How do I deploy this?
-
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+| Action | Keyboard                | Touch             |
+| ------ | ----------------------- | ----------------- |
+| Move   | ← → or A D              | ◀ ▶             |
+| Jump   | Space, ↑ or W           | ▲                 |
+| Read   | H or Enter (on a ledge) | the "Read" prompt |
+| Back   | Esc or M (in a post)    | tap Mr. Planet    |

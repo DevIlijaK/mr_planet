@@ -1,50 +1,49 @@
 "use client";
+
 import Image from "next/image";
-
+import { type FC } from "react";
 import { useGameLoop } from "./providers/game-loop-context";
-import { useSpace } from "./providers/space-provider";
-import { useRef } from "react";
-import { useHeroSize } from "./providers/hero-size-provider";
-import { cn } from "~/lib/utils";
 
-const Hero = () => {
-  const { heroImage, heroTop, heroLeft, showTeleportModal } = useGameLoop();
+interface HeroProps {
+  width: number;
+  height: number;
+}
 
-  const { heroWidth, heroHeight } = useHeroSize();
-  const { heroRef } = useSpace();
-  const textRef = useRef<HTMLDivElement>(null);
+const Hero: FC<HeroProps> = ({ width, height }) => {
+  const { heroImage, phase, heroRef } = useGameLoop();
 
   return (
-    heroRef && (
+    // Position is written straight to `transform` by the game loop rather than
+    // held in state, so the hero moves without re-rendering React each frame.
+    <div
+      ref={heroRef}
+      className="absolute left-0 top-0 z-10 will-change-transform"
+      style={{ width, height }}
+    >
       <div
-        className="absolute"
-        ref={heroRef}
-        style={{ left: heroLeft, top: heroTop }}
+        className={`relative h-full w-full ${
+          phase === "teleporting"
+            ? "hero-beam-out"
+            : phase === "arriving"
+              ? "hero-beam-in"
+              : ""
+        }`}
       >
-        {showTeleportModal && (
-          <div
-            ref={textRef}
-            className={cn(
-              "absolute left-1/2 inline-flex -translate-x-1/2 transform flex-col justify-center whitespace-nowrap rounded-2xl border border-solid bg-gray-700 p-2 text-sm",
-            )}
-            style={{ top: -90 }}
-          >
-            <div>{'Press "h"'}</div>
-            <div>{"to teleport"}</div>
-            <div>{"inside the blog"}</div>
-          </div>
-        )}
-
+        <div className="beam" aria-hidden />
         <Image
           unoptimized
+          priority
           src={heroImage}
-          width={heroWidth}
-          height={heroHeight}
-          alt="planet"
-          className="object-cover"
+          width={width}
+          height={height}
+          alt="Mr. Planet"
+          className="pixelated relative object-contain object-bottom"
+          // The run and jump frames are a few pixels taller than the idle
+          // one; pinning the box keeps his feet where the physics says.
+          style={{ width, height }}
         />
       </div>
-    )
+    </div>
   );
 };
 

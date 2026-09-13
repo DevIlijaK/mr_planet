@@ -8,6 +8,9 @@
     "resolveJsonModule": true,
     "moduleDetection": "force",
     "isolatedModules": true,
+    /* Node's test runner strips types and resolves as ESM, so the physics test
+       imports its subject with an explicit .ts extension. */
+    "allowImportingTsExtensions": true,
 
     /* Strictness */
     "strict": true,
@@ -38,5 +41,5 @@
     "**/*.js",
     ".next/types/**/*.ts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "review-to-delete"]
 }
