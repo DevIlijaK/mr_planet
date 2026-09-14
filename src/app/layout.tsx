@@ -13,18 +13,21 @@ const pixelify = Pixelify_Sans({
 });
 
 export const metadata: Metadata = {
+  // The site is reached through ilijakosanin.dev/mr-planet, so share-card
+  // and icon URLs (src/app/icon.png, opengraph-image.png, …) resolve there.
+  metadataBase: new URL("https://ilijakosanin.dev"),
   title: {
     default: "Mr. Planet",
     template: "%s · Mr. Planet",
   },
   description:
     "Ilija Košanin's blog as a platformer. Jump onto a post to read it.",
-  icons: [{ rel: "icon", url: "/favicon.ico" }],
   openGraph: {
     title: "Mr. Planet",
     description: "A blog you have to jump to.",
     type: "website",
   },
+  twitter: { card: "summary_large_image" },
 };
 
 export const viewport: Viewport = {

@@ -1,6 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import { type FC, useRef } from "react";
+import logo from "../../public/images/hero/mr-planet-head.png";
 import { type LevelPost } from "~/lib/level";
 import { useGameLoop } from "./providers/game-loop-context";
 
@@ -23,20 +25,29 @@ export const Hud: FC<HudProps> = ({ postCount, post }) => {
 
   return (
     <>
-      <header className="pointer-events-none absolute left-4 top-3 z-20 sm:left-6 sm:top-5">
-        <h1 className="signage font-pixel text-[22px] font-bold leading-none tracking-wide text-[color:var(--crust)] sm:text-[28px]">
-          MR. PLANET
-        </h1>
-        <p className="signage mt-1 font-pixel text-[12px] leading-none text-[color:var(--dust)] sm:text-[13px]">
-          {postCount} posts by{" "}
-          <a
-            href="https://ilijakosanin.dev"
-            className="pointer-events-auto text-[color:var(--signal)] no-underline hover:underline"
-          >
-            Ilija Košanin
-          </a>
-          . Jump to one.
-        </p>
+      <header className="pointer-events-none absolute left-4 top-3 z-20 flex items-start gap-2.5 sm:left-6 sm:top-5 sm:gap-3">
+        <Image
+          unoptimized
+          priority
+          src={logo}
+          alt=""
+          className="pixelated h-[30px] w-[30px] shrink-0 sm:h-[45px] sm:w-[45px]"
+        />
+        <div>
+          <h1 className="signage font-pixel text-[22px] font-bold leading-none tracking-wide text-[color:var(--crust)] sm:text-[28px]">
+            MR. PLANET
+          </h1>
+          <p className="signage mt-1 font-pixel text-[12px] leading-none text-[color:var(--dust)] sm:text-[13px]">
+            {postCount} posts by{" "}
+            <a
+              href="https://ilijakosanin.dev"
+              className="pointer-events-auto text-[color:var(--signal)] no-underline hover:underline"
+            >
+              Ilija Košanin
+            </a>
+            . Jump to one.
+          </p>
+        </div>
       </header>
 
       <div
@@ -68,7 +79,9 @@ export const Hud: FC<HudProps> = ({ postCount, post }) => {
           <kbd className="hud-prompt-key fine-only px-[6px] py-[3px]">H</kbd>
           <span className="truncate">
             Read{" "}
-            <span className="font-sans text-[13px] font-semibold text-[color:var(--crust)]">“{shown?.title}”</span>
+            <span className="font-sans text-[13px] font-semibold text-[color:var(--crust)]">
+              “{shown?.title}”
+            </span>
           </span>
         </button>
       </div>

@@ -1,4 +1,4 @@
-import { type Metadata } from "next";
+import { type Metadata, type ResolvingMetadata } from "next";
 import { notFound } from "next/navigation";
 import { ArticleShell } from "~/components/article-shell";
 import { Markdown } from "~/components/markdown";
@@ -14,9 +14,15 @@ export async function generateStaticParams() {
   return posts.map(({ slug }) => ({ slug }));
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata(
+  { params }: Props,
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
   const post = await getPost(params.slug);
   if (!post) return {};
+  // Setting openGraph here replaces the layout's, so carry its share card
+  // (src/app/opengraph-image.png) over; posts have no image of their own.
+  const images = (await parent).openGraph?.images ?? [];
   return {
     title: post.title,
     description: post.excerpt,
@@ -26,6 +32,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       type: "article",
       publishedTime: post.date,
       locale: post.locale === "sr" ? "sr_RS" : "en_US",
+      images,
     },
   };
 }

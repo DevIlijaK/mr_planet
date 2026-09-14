@@ -12,6 +12,7 @@ import {
 } from "react";
 import bg from "../../public/images/background.jpg";
 import heroSprite from "../../public/images/hero/mr-planet.png";
+import logo from "../../public/images/hero/mr-planet-head.png";
 import { RETURN_KEY, TELEPORT_MS } from "~/lib/teleport";
 
 interface ArticleShellProps {
@@ -106,8 +107,14 @@ export const ArticleShell: FC<ArticleShellProps> = ({
               esc
             </kbd>
           </Link>
-          <span className="signage font-pixel text-[14px] font-bold tracking-wide text-[color:var(--crust)]">
+          <span className="signage flex items-center gap-2 font-pixel text-[14px] font-bold tracking-wide text-[color:var(--crust)]">
             MR. PLANET
+            <Image
+              unoptimized
+              src={logo}
+              alt=""
+              className="pixelated h-[30px] w-[30px]"
+            />
           </span>
         </div>
       </nav>
