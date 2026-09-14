@@ -3,6 +3,7 @@ import "~/styles/globals.css";
 import { GeistSans } from "geist/font/sans";
 import { Pixelify_Sans } from "next/font/google";
 import { type Metadata, type Viewport } from "next";
+import { Analytics } from "@vercel/analytics/next";
 
 // The HUD face: titles, signage, prompts. Reading copy stays on Geist.
 const pixelify = Pixelify_Sans({
@@ -40,7 +41,10 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${GeistSans.variable} ${pixelify.variable}`}>
-      <body className="font-sans">{children}</body>
+      <body className="font-sans">
+        {children}
+        <Analytics />
+      </body>
     </html>
   );
 }
